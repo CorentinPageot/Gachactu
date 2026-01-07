@@ -36,7 +36,7 @@ $personnages = getPersonnagesJeu($jeuId);
 
     <div class="personnages-grid">
         <?php foreach ($personnages as $perso): ?>
-        <a href="/personnage/<?= $perso['id'] ?>" class="personnage-card" data-rarete="<?= strtolower($perso['rarete'] ?? '') ?>">
+        <a href="/personnage.php?id=<?= $perso['id'] ?>" class="personnage-card" data-rarete="<?= strtolower($perso['rarete'] ?? '') ?>">
             <div class="personnage-image">
                 <img src="<?= getImagePath($perso['image'], 'game') ?>" alt="<?= htmlspecialchars($perso['nom']) ?>">
                 <?php if (!empty($perso['rarete'])): ?>
