@@ -1,0 +1,24 @@
+ErrorDocument 404 /404.php
+
+RewriteEngine On
+
+# -------------------------------------------------
+# Admin (non touché par suppression .php)
+# -------------------------------------------------
+RewriteRule ^admin/personnage-edit/([0-9]+)$ admin/personnage-edit.php?id=$1 [L,QSA]
+
+# -------------------------------------------------
+# Accès aux fichiers PHP simples (hors admin)
+# -------------------------------------------------
+RewriteCond %{REQUEST_URI} !^/admin/
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME}.php -f
+RewriteRule ^(.+)$ $1.php [L]
+
+# -------------------------------------------------
+# Redirection SEO : enlever le .php dans l'URL (hors admin)
+# -------------------------------------------------
+# NOTE : tu peux commenter cette partie si tu veux garder .php sur jeux, articles, personnages
+# RewriteCond %{REQUEST_URI} !^/admin/
+# RewriteCond %{THE_REQUEST} \s/+(.*)\.php[\s?]
+# RewriteRule ^ %1 [R=301,L]

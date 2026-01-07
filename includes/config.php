@@ -1,0 +1,45 @@
+<?php
+// Chemin absolu vers le fichier .env (hors de la racine web)
+$envPath = '/home/gachacv/.env';
+
+// Vérifie que le fichier existe
+if (!file_exists($envPath)) {
+    die('Fichier .env introuvable à ' . $envPath);
+}
+
+// Lire le fichier .env ligne par ligne
+$envLines = file($envPath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+
+foreach ($envLines as $line) {
+    $line = trim($line);
+    // Ignorer les commentaires
+    if (strpos($line, '#') === 0) continue;
+
+    // Séparer la clé et la valeur
+    [$key, $value] = explode('=', $line, 2);
+    $_ENV[trim($key)] = trim($value);
+}
+
+// Connexion à la base de données avec PDO
+function getDatabase() {
+    static $pdo = null;
+
+    if ($pdo === null) {
+        try {
+            $pdo = new PDO(
+                'mysql:host=' . $_ENV['DB_HOST'] . ';dbname=' . $_ENV['DB_NAME'] . ';charset=utf8mb4',
+                $_ENV['DB_USER'],
+                $_ENV['DB_PASS'],
+                [
+                    PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                    PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+                    PDO::ATTR_EMULATE_PREPARES => false
+                ]
+            );
+        } catch (PDOException $e) {
+            die('Erreur de connexion : ' . $e->getMessage());
+        }
+    }
+
+    return $pdo;
+}
