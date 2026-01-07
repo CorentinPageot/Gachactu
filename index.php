@@ -17,8 +17,8 @@
         <!-- Bloc Jeux Populaires -->
         <section class="section popular-games">
             <div class="section-header">
-                <h2 class="section-title">Jeux populaires</h2>
-                <p class="section-subtitle">Les titres les plus joués et les plus recherchés en ce moment</p>
+                <h2 class="section-title">Nos jeux du moment</h2>
+                <p class="section-subtitle">Guides, astuces et conseils sur les jeux que nous couvrons actuellement.</p>
             </div>
             <div class="games-grid">
             <?php
