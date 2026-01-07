@@ -1,5 +1,22 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE / éditeurs
+.vscode/
+.idea/
+
+# Logs / cache
+*.log
+/cache/
+/tmp/
+
+# Dépendances
 /vendor/
 /node_modules/
+
+# Fichiers sensibles
 .env
-/config/db.php
-/uploads/
+
+# Images dynamiques
+images/uploads/

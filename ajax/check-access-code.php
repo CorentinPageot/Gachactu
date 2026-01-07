@@ -10,7 +10,6 @@ if (!$inputCode) {
 }
 
 if (hash_equals($_ENV['TIERMAKER_CODE'], $inputCode)) {
-    // Optionnel : session
     session_start();
     $_SESSION['tiermaker_unlocked'] = true;
 
