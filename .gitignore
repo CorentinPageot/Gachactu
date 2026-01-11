@@ -17,6 +17,8 @@ Thumbs.db
 
 # Fichiers sensibles
 .env
+mysql.env
+docker-compose.yml
 
 # Images dynamiques
 images/uploads/
