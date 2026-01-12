@@ -16,36 +16,20 @@
     <main class="main-content">
         <section class="section">
             <div class="section-header">
-                <h2 class="section-title">Prochaines sorties</h2>
-                <p class="section-subtitle">Les lancements à ne pas manquer</p>
+                <h2 class="section-title">Planning des Sorties</h2>
+                <p class="section-subtitle">Retrouvez tous les jeux dont la date de lancement est officiellement confirmée. </p>
             </div>
             <div class="games-grid">
-            <?php
-                $prochainsSorties = getProchainsSorties(null, true);
-                foreach ($prochainsSorties as $jeu):
-                    $plateformes = getPlateformesJeu($jeu['id']);
-                    $categories  = getCategoriesJeu($jeu['id']);
-                    $tagsSortie  = getTagsSortieJeu($jeu['date_sortie']);
-                    include 'templates/game-card.php';
-                endforeach;
-            ?>
+            <?php renderGameCards(getProchainsSorties(null, true)); ?>
         </div>
         </section>
         <section class="section">
             <div class="section-header">
-                <h2 class="section-title">Jeux annoncés</h2>
-                <p class="section-subtitle">Pas de date annoncé mais à suivre...</p>
+                <h2 class="section-title">À venir</h2>
+                <p class="section-subtitle">Retrouvez tous les jeux annoncés dont la date de sortie n'est pas encore fixée.</p>
             </div>
             <div class="games-grid">
-                <?php
-                $prochainsSorties = getProchainsSorties(null, false, true);
-                foreach ($prochainsSorties as $jeu):
-                    $plateformes = getPlateformesJeu($jeu['id']);
-                    $categories  = getCategoriesJeu($jeu['id']);
-                    $tagsSortie  = getTagsSortieJeu($jeu['date_sortie']);
-                    include 'templates/game-card.php';
-                endforeach;
-                ?>
+                <?php renderGameCards(getProchainsSorties(null, false, true)); ?>
             </div>
         </section>
     </main>

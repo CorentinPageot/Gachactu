@@ -21,48 +21,7 @@
                 <p class="section-subtitle">Guides, astuces et conseils sur les jeux que nous couvrons actuellement.</p>
             </div>
             <div class="games-grid">
-            <?php
-                $jeuxPopulaires = getJeuxPopulaires(4);
-                foreach ($jeuxPopulaires as $jeu):
-                    $plateformes = getPlateformesJeu($jeu['id']);
-                    $categories  = getCategoriesJeu($jeu['id']);
-                    $tagsSortie  = getTagsSortieJeu($jeu['date_sortie']);
-                ?>
-                <?php if ($jeu['masquer_page'] != 1): ?>
-                    <a href="/jeu.php?id=<?= $jeu['id'] ?>" class="link-game-card">
-                <?php endif; ?>
-                <div class="game-card">
-
-                    <?php if (!empty($tagsSortie)): ?>
-                        <?php foreach ($tagsSortie as $tag): ?>
-                            <span class="game-badge"><?= htmlspecialchars($tag) ?></span>
-                        <?php endforeach; ?>
-                    <?php endif; ?>
-
-                    <img src="<?= getImagePath($jeu['image'], 'game') ?>" alt="<?= htmlspecialchars($jeu['titre']) ?>">
-
-                    <div class="game-card-content">
-                        <h3><?= htmlspecialchars($jeu['titre']) ?></h3>
-
-                        <div class="game-tags">
-                            <?php foreach ($plateformes as $plat): ?>
-                                <span class="game-tag"><?= htmlspecialchars($plat['nom']) ?></span>
-                            <?php endforeach; ?>
-
-                            <?php foreach ($categories as $cat): ?>
-                                <span class="game-tag"><?= htmlspecialchars($cat['nom']) ?></span>
-                            <?php endforeach; ?>
-                        </div>
-
-                        <?php if ($jeu['masquer_page'] != 1): ?>
-                            <span class="game-link">Voir le guide</span>
-                        <?php endif; ?>
-                    </div>
-                </div>
-                <?php if ($jeu['masquer_page'] != 1): ?>
-                    </a>
-                <?php endif; ?>
-                <?php endforeach; ?>
+            <?php renderGameCards(getJeuxPopulaires(4)); ?>
             </div>
         </section>
 
@@ -73,48 +32,7 @@
                 <p class="section-subtitle">Notre top 10 des meilleurs jeux Gacha</p>
             </div>
             <div class="games-grid">
-            <?php
-                $jeux = getTop10Jeux();
-                foreach ($jeux as $jeu):
-                    $plateformes = getPlateformesJeu($jeu['id']);
-                    $categories  = getCategoriesJeu($jeu['id']);
-                    $tagsSortie  = getTagsSortieJeu($jeu['date_sortie']);
-                ?>
-                <?php if ($jeu['masquer_page'] != 1): ?>
-                    <a href="/jeu.php?id=<?= $jeu['id'] ?>" class="link-game-card">
-                <?php endif; ?>
-                <div class="game-card">
-
-                    <?php if (!empty($tagsSortie)): ?>
-                        <?php foreach ($tagsSortie as $tag): ?>
-                            <span class="game-badge"><?= htmlspecialchars($tag) ?></span>
-                        <?php endforeach; ?>
-                    <?php endif; ?>
-                
-                    <img src="<?= getImagePath($jeu['image'], 'game') ?>" alt="<?= htmlspecialchars($jeu['titre']) ?>">
-                
-                    <div class="game-card-content">
-                        <h3><?= htmlspecialchars($jeu['titre']) ?></h3>
-                
-                        <div class="game-tags">
-                            <?php foreach ($plateformes as $plat): ?>
-                                <span class="game-tag"><?= htmlspecialchars($plat['nom']) ?></span>
-                            <?php endforeach; ?>
-                
-                            <?php foreach ($categories as $cat): ?>
-                                <span class="game-tag"><?= htmlspecialchars($cat['nom']) ?></span>
-                            <?php endforeach; ?>
-                        </div>
-                
-                        <?php if ($jeu['masquer_page'] != 1): ?>
-                            <span class="game-link">Voir le guide</span>
-                        <?php endif; ?>
-                    </div>
-                </div>
-                <?php if ($jeu['masquer_page'] != 1): ?>
-                    </a>
-                <?php endif; ?>
-                <?php endforeach; ?>
+            <?php renderGameCards(getTop10Jeux()); ?>
             </div>
         </section>
 

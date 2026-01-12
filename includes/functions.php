@@ -166,6 +166,30 @@ function getPlateformesJeu($jeuId) {
 }
 
 /**
+ * Récupère tous les développeurs
+ */
+function getDeveloppeurs() {
+    $pdo = getDatabase();
+    $stmt = $pdo->query("SELECT * FROM developpeurs ORDER BY nom");
+    return $stmt->fetchAll();
+}
+
+/**
+ * Récupère le développeur d'un jeu
+ */
+function getDeveloppeurJeu($jeuId) {
+    $pdo = getDatabase();
+    $stmt = $pdo->prepare("
+        SELECT d.*
+        FROM developpeurs d
+        INNER JOIN jeux j ON j.developpeur_id = d.id
+        WHERE j.id = ?
+    ");
+    $stmt->execute([$jeuId]);
+    return $stmt->fetch();
+}
+
+/**
  * Récupère si un jeu va bientôt sortir ou est sorti récemment
  */
 function getTagsSortieJeu(?string $dateSortie): array {
@@ -363,6 +387,21 @@ function getStatutSortie($dateSortie) {
     }
 
     return formatDateFr($dateSortie);
+}
+
+/**
+ * Affiche une grille de cartes de jeux en utilisant le template game-card.php
+ * 
+ * @param array $jeux - Tableau de jeux à afficher
+ */
+function renderGameCards($jeux) {
+    foreach ($jeux as $jeu):
+        $plateformes = getPlateformesJeu($jeu['id']);
+        $categories  = getCategoriesJeu($jeu['id']);
+        $tagsSortie  = getTagsSortieJeu($jeu['date_sortie']);
+        $developpeur = getDeveloppeurJeu($jeu['id']);
+        include __DIR__ . '/../templates/game-card.php';
+    endforeach;
 }
 
 /**

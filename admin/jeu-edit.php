@@ -10,13 +10,15 @@ $pageTitle = $jeu ? 'Modifier le jeu' : 'Nouveau jeu';
 $message = '';
 $messageType = '';
 
-// Récupérer toutes les catégories et plateformes
+// Récupérer toutes les catégories, plateformes et développeurs
 $categories = getCategories();
 $plateformes = getPlateformes();
+$developpeurs = getDeveloppeurs();
 
-// Récupérer les catégories et plateformes actuelles du jeu
+// Récupérer les catégories, plateformes et développeur actuels du jeu
 $jeuCategories = $id ? array_column(getCategoriesJeu($id), 'id') : [];
 $jeuPlateformes = $id ? array_column(getPlateformesJeu($id), 'id') : [];
+$jeuDeveloppeur = $id ? getDeveloppeurJeu($id) : null;
 
 // Traitement du formulaire
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -69,6 +71,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $image = $jeu['image'] ?? '';
     $selectedCategories = $_POST['categories'] ?? [];
     $selectedPlateformes = $_POST['plateformes'] ?? [];
+    $developpeurId = !empty($_POST['developpeur_id']) ? (int)$_POST['developpeur_id'] : null;
 
     // Upload de l'image
     if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
@@ -87,18 +90,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $messageType = 'error';
         } else {
             if ($id) {
-                if (updateJeu($id, $titre, $dateSortie, $image, $estPopulaire, $masquerPage, $estTop10, $top10_position, $selectedCategories, $selectedPlateformes, $description)) {
+                if (updateJeu($id, $titre, $dateSortie, $image, $estPopulaire, $masquerPage, $estTop10, $top10_position, $selectedCategories, $selectedPlateformes, $description, $developpeurId)) {
                     $message = 'Jeu mis à jour avec succès.';
                     $messageType = 'success';
                     $jeu = getJeuById($id);
                     $jeuCategories = array_column(getCategoriesJeu($id), 'id');
                     $jeuPlateformes = array_column(getPlateformesJeu($id), 'id');
+                    $jeuDeveloppeur = getDeveloppeurJeu($id);
                 } else {
                     $message = 'Erreur lors de la mise à jour.';
                     $messageType = 'error';
                 }
             } else {
-                $newId = createJeu($titre, $dateSortie, $image, $estPopulaire, $masquerPage, $estTop10, $top10_position, $selectedCategories, $selectedPlateformes, $description);
+                $newId = createJeu($titre, $dateSortie, $image, $estPopulaire, $masquerPage, $estTop10, $top10_position, $selectedCategories, $selectedPlateformes, $description, $developpeurId);
                 if ($newId) {
                     header('Location: jeu-edit.php?id=' . $newId . '&created=1');
                     exit;
@@ -181,11 +185,7 @@ include 'includes/admin-header.php';
             <?php if (empty($plateformes)): ?>
             <p class="admin-hint">Aucune plateforme disponible. <a href="plateformes.php">Ajouter des plateformes</a></p>
             <?php endif; ?>
-        </div>
-    </div>
-
-    <div class="admin-form-row">
-        <div class="admin-form-group">
+            <br/>
             <label>Options</label>
             <div class="admin-checkbox-group">
                 <label class="admin-checkbox-label">
@@ -204,6 +204,24 @@ include 'includes/admin-header.php';
                     Top 10
                 </label>
             </div>
+        </div>
+    </div>
+
+    <div class="admin-form-row">
+        <div class="admin-form-group">
+            <label for="developpeur_id">Développeur</label>
+            <select id="developpeur_id" name="developpeur_id">
+                <option value="">— Aucun développeur —</option>
+                <?php foreach ($developpeurs as $dev): ?>
+                <option value="<?= $dev['id'] ?>" 
+                    <?= (isset($jeuDeveloppeur) && $jeuDeveloppeur && $jeuDeveloppeur['id'] == $dev['id']) ? 'selected' : '' ?>>
+                    <?= htmlspecialchars($dev['nom']) ?>
+                </option>
+                <?php endforeach; ?>
+            </select>
+            <?php if (empty($developpeurs)): ?>
+            <p class="admin-hint">Aucun développeur disponible. <a href="developpeurs.php">Ajouter des développeurs</a></p>
+            <?php endif; ?>
         </div>
         <div class="admin-form-group">
             <label for="top10_position">Position dans le Top 10</label>
@@ -231,16 +249,17 @@ include 'includes/admin-header.php';
             </select>
         </div>
     </div>
-
-    <div class="admin-form-group">
-        <label for="image">Image</label>
-        <input type="file" id="image" name="image" accept="image/*">
-        <?php if (!empty($jeu['image'])): ?>
-        <div class="admin-image-preview">
-            <p>Image actuelle :</p>
-            <img src="../<?= getImagePath($jeu['image'], 'game') ?>" alt="">
+    <div class="admin-form-row">
+        <div class="admin-form-group">
+            <label for="image">Image</label>
+            <input type="file" id="image" name="image" accept="image/*">
+            <?php if (!empty($jeu['image'])): ?>
+            <div class="admin-image-preview">
+                <p>Image actuelle :</p>
+                <img src="../<?= getImagePath($jeu['image'], 'game') ?>" alt="">
+            </div>
+            <?php endif; ?>
         </div>
-        <?php endif; ?>
     </div>
 
     <div class="admin-form-actions">

@@ -7,6 +7,7 @@
  * @var array $plateformes - Les plateformes du jeu
  * @var array $categories - Les catégories du jeu
  * @var array $tagsSortie - Les tags de sortie du jeu
+ * @var array|null $developpeur - Le développeur du jeu (optionnel)
  */
 ?>
 <?php if ($jeu['masquer_page'] != 1): ?>
@@ -29,6 +30,10 @@
         <?php endif; ?>
 
         <div class="game-tags">
+            <?php if (!empty($developpeur)): ?>
+                <span class="game-tag"><?= htmlspecialchars($developpeur['nom']) ?></span>
+            <?php endif; ?>
+            
             <?php foreach ($plateformes as $plat): ?>
                 <span class="game-tag"><?= htmlspecialchars($plat['nom']) ?></span>
             <?php endforeach; ?>

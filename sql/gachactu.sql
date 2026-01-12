@@ -207,6 +207,7 @@ CREATE TABLE IF NOT EXISTS `jeux` (
   `top10` tinyint(1) NOT NULL DEFAULT '0',
   `top10_position` tinyint DEFAULT NULL,
   `description` text DEFAULT NULL,
+  `developpeur_id` int DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM AUTO_INCREMENT=15 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
@@ -387,6 +388,19 @@ INSERT INTO `plateformes` (`id`, `nom`) VALUES
 (2, 'IOS'),
 (3, 'PC'),
 (4, 'PS5');
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `developpeurs`
+--
+
+DROP TABLE IF EXISTS `developpeurs`;
+CREATE TABLE IF NOT EXISTS `developpeurs` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `nom` varchar(100) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- --------------------------------------------------------
 

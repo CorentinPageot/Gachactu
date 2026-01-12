@@ -28,11 +28,11 @@ function deleteActualite($id) {
 // FONCTIONS CRUD JEUX
 // ============================================
 
-function createJeu($titre, $dateSortie, $image, $estPopulaire, $masquerPage, $estTop10, $top10_position, $categories = [], $plateformes = [], $description = '') {
+function createJeu($titre, $dateSortie, $image, $estPopulaire, $masquerPage, $estTop10, $top10_position, $categories = [], $plateformes = [], $description = '', $developpeurId = null) {
     $pdo = getDatabase();
     $dateSortie = empty($dateSortie) ? null : $dateSortie;
-    $stmt = $pdo->prepare("INSERT INTO jeux (titre, date_sortie, image, est_populaire, masquer_page, top10, top10_position, description) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
-    $stmt->execute([$titre, $dateSortie, $image, $estPopulaire, $masquerPage, $estTop10, $top10_position, $description]);
+    $stmt = $pdo->prepare("INSERT INTO jeux (titre, date_sortie, image, est_populaire, masquer_page, top10, top10_position, description, developpeur_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+    $stmt->execute([$titre, $dateSortie, $image, $estPopulaire, $masquerPage, $estTop10, $top10_position, $description, $developpeurId]);
     $jeuId = $pdo->lastInsertId();
 
     // Ajouter les catégories et plateformes
@@ -42,11 +42,11 @@ function createJeu($titre, $dateSortie, $image, $estPopulaire, $masquerPage, $es
     return $jeuId;
 }
 
-function updateJeu($id, $titre, $dateSortie, $image, $estPopulaire, $masquerPage, $estTop10, $top10_position, $categories = [], $plateformes = [], $description = '') {
+function updateJeu($id, $titre, $dateSortie, $image, $estPopulaire, $masquerPage, $estTop10, $top10_position, $categories = [], $plateformes = [], $description = '', $developpeurId = null) {
     $pdo = getDatabase();
     $dateSortie = empty($dateSortie) ? null : $dateSortie;
-    $stmt = $pdo->prepare("UPDATE jeux SET titre = ?, date_sortie = ?, image = ?, est_populaire = ?, masquer_page = ?, top10 = ?, top10_position = ?, description = ? WHERE id = ?");
-    $result = $stmt->execute([$titre, $dateSortie, $image, $estPopulaire, $masquerPage, $estTop10, $top10_position, $description, $id]);
+    $stmt = $pdo->prepare("UPDATE jeux SET titre = ?, date_sortie = ?, image = ?, est_populaire = ?, masquer_page = ?, top10 = ?, top10_position = ?, description = ?, developpeur_id = ? WHERE id = ?");
+    $result = $stmt->execute([$titre, $dateSortie, $image, $estPopulaire, $masquerPage, $estTop10, $top10_position, $description, $developpeurId, $id]);
 
     // Mettre à jour les catégories et plateformes
     setJeuCategories($id, $categories);
@@ -288,6 +288,35 @@ function deletePlateforme($id) {
 function getPlateformeById($id) {
     $pdo = getDatabase();
     $stmt = $pdo->prepare("SELECT * FROM plateformes WHERE id = ?");
+    $stmt->execute([$id]);
+    return $stmt->fetch();
+}
+
+// ============================================
+// FONCTIONS CRUD DÉVELOPPEURS
+// ============================================
+
+function createDeveloppeur($nom) {
+    $pdo = getDatabase();
+    $stmt = $pdo->prepare("INSERT INTO developpeurs (nom) VALUES (?)");
+    return $stmt->execute([$nom]);
+}
+
+function updateDeveloppeur($id, $nom) {
+    $pdo = getDatabase();
+    $stmt = $pdo->prepare("UPDATE developpeurs SET nom = ? WHERE id = ?");
+    return $stmt->execute([$nom, $id]);
+}
+
+function deleteDeveloppeur($id) {
+    $pdo = getDatabase();
+    $stmt = $pdo->prepare("DELETE FROM developpeurs WHERE id = ?");
+    return $stmt->execute([$id]);
+}
+
+function getDeveloppeurById($id) {
+    $pdo = getDatabase();
+    $stmt = $pdo->prepare("SELECT * FROM developpeurs WHERE id = ?");
     $stmt->execute([$id]);
     return $stmt->fetch();
 }
