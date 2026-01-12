@@ -126,9 +126,11 @@ include 'includes/admin-header.php';
             <label for="rarete">Rareté</label>
             <select id="rarete" name="rarete">
                 <option value="">Aucune</option>
+                <option value="UR" <?= ($personnage['rarete'] ?? '') === 'UR' ? 'selected' : '' ?>>UR</option>
                 <option value="SSR" <?= ($personnage['rarete'] ?? '') === 'SSR' ? 'selected' : '' ?>>SSR</option>
                 <option value="SR" <?= ($personnage['rarete'] ?? '') === 'SR' ? 'selected' : '' ?>>SR</option>
                 <option value="R" <?= ($personnage['rarete'] ?? '') === 'R' ? 'selected' : '' ?>>R</option>
+                <option value="6*" <?= ($personnage['rarete'] ?? '') === '6*' ? 'selected' : '' ?>>6 étoiles</option>
                 <option value="5*" <?= ($personnage['rarete'] ?? '') === '5*' ? 'selected' : '' ?>>5 étoiles</option>
                 <option value="4*" <?= ($personnage['rarete'] ?? '') === '4*' ? 'selected' : '' ?>>4 étoiles</option>
                 <option value="3*" <?= ($personnage['rarete'] ?? '') === '3*' ? 'selected' : '' ?>>3 étoiles</option>
