@@ -52,6 +52,9 @@
                 <a href="plateformes.php" class="admin-nav-link <?= basename($_SERVER['PHP_SELF']) == 'plateformes.php' ? 'active' : '' ?>">
                     <i class="fas fa-desktop"></i> Plateformes
                 </a>
+                <a href="developpeurs.php" class="admin-nav-link <?= basename($_SERVER['PHP_SELF']) == 'developpeurs.php' ? 'active' : '' ?>">
+                    <i class="fas fa-code"></i> Développeurs
+                </a>
             </nav>
             <div class="admin-sidebar-footer">
                 <a href="../index.php" class="admin-nav-link" target="_blank">
