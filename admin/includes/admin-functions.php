@@ -28,10 +28,11 @@ function deleteActualite($id) {
 // FONCTIONS CRUD JEUX
 // ============================================
 
-function createJeu($titre, $dateSortie, $image, $estPopulaire, $masquerPage, $estTop10, $top10_position, $categories = [], $plateformes = []) {
+function createJeu($titre, $dateSortie, $image, $estPopulaire, $masquerPage, $estTop10, $top10_position, $categories = [], $plateformes = [], $description = '') {
     $pdo = getDatabase();
-    $stmt = $pdo->prepare("INSERT INTO jeux (titre, date_sortie, image, est_populaire, masquer_page, top10, top10_position) VALUES (?, ?, ?, ?, ?, ?, ?)");
-    $stmt->execute([$titre, $dateSortie, $image, $estPopulaire, $masquerPage, $estTop10, $top10_position]);
+    $dateSortie = empty($dateSortie) ? null : $dateSortie;
+    $stmt = $pdo->prepare("INSERT INTO jeux (titre, date_sortie, image, est_populaire, masquer_page, top10, top10_position, description) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+    $stmt->execute([$titre, $dateSortie, $image, $estPopulaire, $masquerPage, $estTop10, $top10_position, $description]);
     $jeuId = $pdo->lastInsertId();
 
     // Ajouter les catégories et plateformes
@@ -41,10 +42,11 @@ function createJeu($titre, $dateSortie, $image, $estPopulaire, $masquerPage, $es
     return $jeuId;
 }
 
-function updateJeu($id, $titre, $dateSortie, $image, $estPopulaire, $masquerPage, $estTop10, $top10_position, $categories = [], $plateformes = []) {
+function updateJeu($id, $titre, $dateSortie, $image, $estPopulaire, $masquerPage, $estTop10, $top10_position, $categories = [], $plateformes = [], $description = '') {
     $pdo = getDatabase();
-    $stmt = $pdo->prepare("UPDATE jeux SET titre = ?, date_sortie = ?, image = ?, est_populaire = ?, masquer_page = ?, top10 = ?, top10_position = ? WHERE id = ?");
-    $result = $stmt->execute([$titre, $dateSortie, $image, $estPopulaire, $masquerPage, $estTop10, $top10_position, $id]);
+    $dateSortie = empty($dateSortie) ? null : $dateSortie;
+    $stmt = $pdo->prepare("UPDATE jeux SET titre = ?, date_sortie = ?, image = ?, est_populaire = ?, masquer_page = ?, top10 = ?, top10_position = ?, description = ? WHERE id = ?");
+    $result = $stmt->execute([$titre, $dateSortie, $image, $estPopulaire, $masquerPage, $estTop10, $top10_position, $description, $id]);
 
     // Mettre à jour les catégories et plateformes
     setJeuCategories($id, $categories);

@@ -84,10 +84,16 @@ function getJeuxPopulaires($limit = 4) {
 /**
  * Récupère les prochaines sorties (jeux non sortis ou récents)
  */
-function getProchainsSorties($limit = null) {
+function getProchainsSorties($limit = null, $onlyWithDate = false, $onlyWithoutDate = false) {
     $pdo = getDatabase();
 
-    $sql = "SELECT * FROM jeux WHERE date_sortie >= CURDATE() OR date_sortie = '0000-00-00' ORDER BY date_sortie ASC";
+    if ($onlyWithDate) {
+        $sql = "SELECT * FROM jeux WHERE date_sortie >= CURDATE() AND date_sortie IS NOT NULL ORDER BY date_sortie ASC";
+    } elseif ($onlyWithoutDate) {
+        $sql = "SELECT * FROM jeux WHERE date_sortie IS NULL ORDER BY titre ASC";
+    } else {
+        $sql = "SELECT * FROM jeux WHERE date_sortie >= CURDATE() OR date_sortie IS NULL ORDER BY CASE WHEN date_sortie IS NULL THEN 1 ELSE 0 END, date_sortie ASC";
+    }
 
     if ($limit !== null) {
         $sql .= " LIMIT :limit";
@@ -162,10 +168,14 @@ function getPlateformesJeu($jeuId) {
 /**
  * Récupère si un jeu va bientôt sortir ou est sorti récemment
  */
-function getTagsSortieJeu(string $dateSortie): array {
+function getTagsSortieJeu(?string $dateSortie): array {
     $tags = [];
 
     $today = new DateTime('today');
+    
+    if($dateSortie === null){
+        return $tags;
+    }
     $releaseDate = new DateTime($dateSortie);
     $diffDays = (int)$today->diff($releaseDate)->format('%r%a');
 
@@ -321,7 +331,7 @@ function getPartenaires() {
  * Formate une date en français
  */
 function formatDateFr($date) {
-    if ($date === '0000-00-00' || empty($date)) {
+    if ($date === null || $date === '0000-00-00' || empty($date)) {
         return 'À venir';
     }
 
@@ -343,7 +353,7 @@ function formatDateFr($date) {
  * Retourne le statut de sortie d'un jeu
  */
 function getStatutSortie($dateSortie) {
-    if ($dateSortie === '0000-00-00' || empty($dateSortie)) {
+    if ($dateSortie === null || $dateSortie === '0000-00-00' || empty($dateSortie)) {
         return 'À venir';
     }
 

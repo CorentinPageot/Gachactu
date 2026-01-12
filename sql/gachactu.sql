@@ -200,12 +200,13 @@ DROP TABLE IF EXISTS `jeux`;
 CREATE TABLE IF NOT EXISTS `jeux` (
   `id` int NOT NULL AUTO_INCREMENT,
   `titre` varchar(200) NOT NULL,
-  `date_sortie` date NOT NULL,
+  `date_sortie` date DEFAULT NULL,
   `est_populaire` tinyint(1) NOT NULL,
   `image` varchar(200) NOT NULL,
   `masquer_page` tinyint(1) NOT NULL,
   `top10` tinyint(1) NOT NULL DEFAULT '0',
   `top10_position` tinyint DEFAULT NULL,
+  `description` text DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM AUTO_INCREMENT=15 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 

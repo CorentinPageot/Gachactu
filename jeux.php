@@ -21,51 +21,32 @@
             </div>
             <div class="games-grid">
             <?php
-                $prochainsSorties = getProchainsSorties();
+                $prochainsSorties = getProchainsSorties(null, true);
                 foreach ($prochainsSorties as $jeu):
                     $plateformes = getPlateformesJeu($jeu['id']);
                     $categories  = getCategoriesJeu($jeu['id']);
                     $tagsSortie  = getTagsSortieJeu($jeu['date_sortie']);
-                ?>
-            <?php if ($jeu['masquer_page'] != 1): ?>
-                <a href="/jeu.php?id=<?= $jeu['id'] ?>" class="link-game-card">
-            <?php endif; ?>
-            <div class="game-card">
-                <!-- Badges sortie -->
-                <?php if (!empty($tagsSortie)): ?>
-                    <?php foreach ($tagsSortie as $tag): ?>
-                        <span class="game-badge"><?= htmlspecialchars($tag) ?></span>
-                    <?php endforeach; ?>
-                <?php endif; ?>
-
-                <img src="<?= getImagePath($jeu['image'], 'game') ?>" alt="<?= htmlspecialchars($jeu['titre']) ?>">
-
-                <div class="game-card-content">
-                    <h3><?= htmlspecialchars($jeu['titre']) ?></h3>
-
-                    <div class="game-tags">
-                        <?php foreach ($plateformes as $plat): ?>
-                            <span class="game-tag"><?= htmlspecialchars($plat['nom']) ?></span>
-                        <?php endforeach; ?>
-
-                        <?php foreach ($categories as $cat): ?>
-                            <span class="game-tag"><?= htmlspecialchars($cat['nom']) ?></span>
-                        <?php endforeach; ?>
-                    </div>
-                    
-                    <div class="game-card-footer">
-                        <span class="game-release"><?= getStatutSortie($jeu['date_sortie']) ?></span>
-                        <?php if ($jeu['masquer_page'] != 1): ?>
-                            <span class="game-btn">Voir le guide</span>
-                        <?php endif; ?>
-                    </div>
-                </div>
-            </div>
-            <?php if ($jeu['masquer_page'] != 1): ?>
-                </a>
-            <?php endif; ?>
-            <?php endforeach; ?>
+                    include 'templates/game-card.php';
+                endforeach;
+            ?>
         </div>
+        </section>
+        <section class="section">
+            <div class="section-header">
+                <h2 class="section-title">Jeux annoncés</h2>
+                <p class="section-subtitle">Pas de date annoncé mais à suivre...</p>
+            </div>
+            <div class="games-grid">
+                <?php
+                $prochainsSorties = getProchainsSorties(null, false, true);
+                foreach ($prochainsSorties as $jeu):
+                    $plateformes = getPlateformesJeu($jeu['id']);
+                    $categories  = getCategoriesJeu($jeu['id']);
+                    $tagsSortie  = getTagsSortieJeu($jeu['date_sortie']);
+                    include 'templates/game-card.php';
+                endforeach;
+                ?>
+            </div>
         </section>
     </main>
 

@@ -21,6 +21,7 @@ $jeuPlateformes = $id ? array_column(getPlateformesJeu($id), 'id') : [];
 // Traitement du formulaire
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $titre = trim($_POST['titre'] ?? '');
+    $description = trim($_POST['description'] ?? '');
     $dateSortie = $_POST['date_sortie'] ?? '';
     $estPopulaire = isset($_POST['est_populaire']) ? 1 : 0;
     $masquerPage = isset($_POST['masquer_page']) ? 1 : 0;
@@ -86,7 +87,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $messageType = 'error';
         } else {
             if ($id) {
-                if (updateJeu($id, $titre, $dateSortie, $image, $estPopulaire, $masquerPage, $estTop10, $top10_position, $selectedCategories, $selectedPlateformes)) {
+                if (updateJeu($id, $titre, $dateSortie, $image, $estPopulaire, $masquerPage, $estTop10, $top10_position, $selectedCategories, $selectedPlateformes, $description)) {
                     $message = 'Jeu mis à jour avec succès.';
                     $messageType = 'success';
                     $jeu = getJeuById($id);
@@ -97,7 +98,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $messageType = 'error';
                 }
             } else {
-                $newId = createJeu($titre, $dateSortie, $image, $estPopulaire, $masquerPage, $estTop10, $top10_position, $selectedCategories, $selectedPlateformes);
+                $newId = createJeu($titre, $dateSortie, $image, $estPopulaire, $masquerPage, $estTop10, $top10_position, $selectedCategories, $selectedPlateformes, $description);
                 if ($newId) {
                     header('Location: jeu-edit.php?id=' . $newId . '&created=1');
                     exit;
@@ -143,6 +144,11 @@ include 'includes/admin-header.php';
             <label for="date_sortie">Date de sortie</label>
             <input type="date" id="date_sortie" name="date_sortie" value="<?= $jeu['date_sortie'] ?? '' ?>">
         </div>
+    </div>
+
+    <div class="admin-form-group">
+        <label for="description">Description</label>
+        <textarea id="description" name="description" rows="4"><?= htmlspecialchars($jeu['description'] ?? '') ?></textarea>
     </div>
 
     <div class="admin-form-row">
