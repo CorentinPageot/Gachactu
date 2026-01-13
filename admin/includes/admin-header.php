@@ -55,6 +55,13 @@
                 <a href="developpeurs.php" class="admin-nav-link <?= basename($_SERVER['PHP_SELF']) == 'developpeurs.php' ? 'active' : '' ?>">
                     <i class="fas fa-code"></i> Développeurs
                 </a>
+                
+                <?php if (isSuperAdmin()): ?>
+                <div class="admin-nav-separator"></div>
+                <a href="utilisateurs.php" class="admin-nav-link <?= basename($_SERVER['PHP_SELF']) == 'utilisateurs.php' || basename($_SERVER['PHP_SELF']) == 'utilisateur-edit.php' ? 'active' : '' ?>">
+                    <i class="fas fa-user-shield"></i> Utilisateurs
+                </a>
+                <?php endif; ?>
             </nav>
             <div class="admin-sidebar-footer">
                 <a href="../index.php" class="admin-nav-link" target="_blank">

@@ -1,4 +1,7 @@
 <?php
+// Configuration du fuseau horaire
+date_default_timezone_set('Europe/Paris');
+
 // Chemin absolu vers le fichier .env (hors de la racine web)
 $envPath = '/home/gachacv/.env';
 
