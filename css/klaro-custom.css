@@ -1,0 +1,160 @@
+/* Personnalisation Klaro pour Gach'Actu */
+
+/* Variables de personnalisation - Adaptez ces couleurs à votre charte */
+:root {
+    --klaro-primary-color: #4a90e2;
+    --klaro-bg-color: #1a1a2e;
+    --klaro-text-color: #ffffff;
+    --klaro-border-radius: 8px;
+}
+
+/* PARAMÉTRAGE DE LA POSITION DU BANDEAU */
+
+/* Position actuelle : BOTTOM (bandeau en bas) */
+.klaro .cookie-notice {
+    bottom: 20px;
+    top: auto;
+    left: 20px;
+    right: 20px;
+}
+
+/* 
+   POUR CHANGER LA POSITION, décommentez UNE des sections ci-dessous :
+   
+   Pour afficher EN HAUT :
+   .klaro .cookie-notice {
+       top: 20px;
+       bottom: auto;
+       left: 20px;
+       right: 20px;
+   }
+   
+   Pour afficher À GAUCHE :
+   .klaro .cookie-notice {
+       left: 20px;
+       right: auto;
+       top: 50%;
+       transform: translateY(-50%);
+       max-width: 400px;
+   }
+   
+   Pour afficher À DROITE :
+   .klaro .cookie-notice {
+       right: 20px;
+       left: auto;
+       top: 50%;
+       transform: translateY(-50%);
+       max-width: 400px;
+   }
+   
+   Pour une MODAL CENTRÉE, modifiez klaro-config.js :
+   noticeAsModal: true
+*/
+
+/* Personnalisation du bandeau */
+.klaro .cookie-notice {
+    background-color: var(--klaro-bg-color);
+    border-radius: var(--klaro-border-radius);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+/* Arrière-plan semi-transparent pour voir le site derrière la modal */
+.klaro .cookie-modal-notice {
+    background-color: rgba(0, 0, 0) !important;
+    backdrop-filter: blur(5px);
+}
+
+/* Personnalisation de la modal de paramètres */
+.klaro .cookie-modal {
+    border-radius: var(--klaro-border-radius);
+    color: var(--klaro-text-color);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+}
+
+.klaro .cookie-modal .cm-header {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Boutons */
+.klaro .cm-btn {
+    border-radius: 4px;
+    font-weight: 500;
+    padding: 10px 20px;
+    transition: all 0.3s ease;
+}
+
+.klaro .cm-btn.cm-btn-success {
+    background-color: var(--klaro-primary-color);
+    border-color: var(--klaro-primary-color);
+}
+
+.klaro .cm-btn.cm-btn-success:hover {
+    background-color: #357abd;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(74, 144, 226, 0.3);
+}
+
+.klaro .cm-btn.cm-btn-info {
+    background-color: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: var(--klaro-text-color);
+}
+
+.klaro .cm-btn.cm-btn-info:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Switch toggle */
+.klaro .cm-list-input:checked + .cm-list-label .slider {
+    background-color: var(--klaro-primary-color);
+}
+
+/* Liens */
+.klaro a {
+    color: var(--klaro-primary-color);
+}
+
+.klaro a:hover {
+    color: #357abd;
+}
+
+/* Adaptabilité mobile */
+@media (max-width: 768px) {
+    .klaro .cookie-notice {
+        left: 10px;
+        right: 10px;
+        bottom: 10px;
+    }
+    
+    .klaro .cookie-modal {
+        margin: 10px;
+        max-height: calc(100vh - 20px);
+    }
+}
+
+/* Bouton pour rouvrir les paramètres (optionnel) */
+.klaro-show-settings {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    background-color: var(--klaro-primary-color);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    cursor: pointer;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    z-index: 999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.klaro-show-settings:hover {
+    transform: scale(1.1);
+    box-shadow: 0 4px 15px rgba(74, 144, 226, 0.4);
+}

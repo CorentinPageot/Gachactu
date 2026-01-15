@@ -10,17 +10,17 @@ if (!$actualite) {
     header('Location: /actualites');
     exit;
 }
+
+// SEO
+$pageTitle = $actualite['titre'];
+$pageDescription = isset($actualite['description']) ? substr(strip_tags($actualite['description']), 0, 155) : substr(strip_tags($actualite['contenu']), 0, 155);
+$ogType = 'article';
+$ogImage = isset($actualite['image']) ? 'https://gachactu.com/' . getImagePath($actualite['image'], 'article') : 'https://gachactu.com/images/logo_gachactu.png';
+$canonicalUrl = '/article?id=' . $actualite['id'];
+$structuredData = 'article'; // Active les données structurées Article
+
+include 'includes/head.php';
 ?>
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= htmlspecialchars($actualite['titre']) ?> - Gach'Actu</title>
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="icon" href="images/logo_gachactu.ico" type="image/x-icon">
-</head>
 <body>
     <?php include 'includes/header.php'; ?>
 
@@ -51,7 +51,7 @@ if (!$actualite) {
                 <div class="article-share">
                     <span>Partager :</span>
                     <div class="share-buttons">
-                        <a href="https://twitter.com/intent/tweet?url=<?= urlencode('https://gachactu.fr/article/' . $actualite['id']) ?>&text=<?= urlencode($actualite['titre']) ?>" target="_blank" class="share-btn share-twitter" aria-label="Partager sur X">
+                        <a href="https://twitter.com/intent/tweet?url=<?= urlencode('https://gachactu.com/article/' . $actualite['id']) ?>&text=<?= urlencode($actualite['titre']) ?>" target="_blank" class="share-btn share-twitter" aria-label="Partager sur X">
                             <i class="fab fa-x-twitter"></i>
                         </a>
                         <button class="share-btn share-copy" aria-label="Copier le lien" onclick="copyLink()">

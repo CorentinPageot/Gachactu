@@ -18,17 +18,10 @@ $jeuId = $personnage['jeu_id'];
 // Récupérer la configuration des rubriques pour ce jeu
 $configRubriques = getConfigRubriquesJeu($jeuId);
 $valeursPerso = getValeursRubriquesPersonnalisees($id);
+
+$pageTitle = $personnage['nom'] . ' - Guide & Build';
+include 'includes/head.php';
 ?>
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= htmlspecialchars($personnage['nom']) ?> - Guide & Build - Gach'Actu</title>
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="icon" href="images/logo_gachactu.ico" type="image/x-icon">
-</head>
 <body>
     <?php include 'includes/header.php'; ?>
 

@@ -1,13 +1,7 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mentions légales - Gach'Actu</title>
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="icon" href="images/logo_gachactu.ico" type="image/x-icon">
-</head>
+<?php 
+$pageTitle = 'Mentions légales';
+include 'includes/head.php';
+?>
 <body>
     <?php include 'includes/header.php'; ?>
 
@@ -43,7 +37,7 @@
                     <p>Ces éléments n'influencent en aucun cas l'indépendance éditoriale ni le contenu des articles publiés sur le site.</p>
 
                     <h2 class="legal-title">Hébergement</h2>
-                    <p>Le site gachactu.fr est hébergé par la société <a href="https://www.ovhcloud.com/fr/" target="_blank">OVHcloud SAS</a></p>
+                    <p>Le site gachactu.com est hébergé par la société <a href="https://www.ovhcloud.com/fr/" target="_blank">OVHcloud SAS</a></p>
                     <p>Adresse : 2 rue Kellermann – BP 80157 59053 ROUBAIX CEDEX 1</p>
                     <p>Téléphone : 1007</p>
 
@@ -54,7 +48,7 @@
                     Le site n'est affilié ni soutenu par les détenteurs des licences mentionnées.</p>
 
                     <h2 class="legal-title">Responsabilité</h2>
-                    <p>Les informations diffusées sur le site gachactu.fr sont fournies à titre indicatif.</p>
+                    <p>Les informations diffusées sur le site gachactu.com sont fournies à titre indicatif.</p>
                     <p>L'éditeur ne saurait être tenu responsable :</p>
                     <ul>
                         <li>d'éventuelles erreurs ou omissions,</li>
@@ -72,6 +66,26 @@
                     </ul>
                     </p>
                     <p>Conformément au Règlement Général sur la Protection des Données (RGPD), l'utilisateur dispose d'un droit d'accès, de rectification et de suppression de ses données en contactant : <a href="mailto:gachactu@gmail.com">gachactu@gmail.com</a></p>
+
+                    <h2 class="legal-title">Cookies et technologies similaires</h2>
+                    <p>Le site gachactu.com utilise des cookies et des technologies similaires pour améliorer votre expérience de navigation et mesurer l'audience du site.</p>
+                    
+                    <h3>Qu'est-ce qu'un cookie ?</h3>
+                    <p>Un cookie est un petit fichier texte déposé sur votre terminal (ordinateur, smartphone, tablette) lors de la visite d'un site web.</p>
+                    
+                    <h3>Cookies utilisés sur ce site</h3>
+                    <p><strong>Google Analytics (GA4)</strong> : Nous utilisons Google Analytics pour mesurer l'audience et comprendre comment les visiteurs utilisent notre site. Ces données nous permettent d'améliorer le contenu et l'expérience utilisateur.</p>
+                    <p>Cookies concernés : _ga, _gid, _gat</p>
+                    <p>Durée de conservation : jusqu'à 2 ans</p>
+                    <p>Finalité : Mesure d'audience et statistiques</p>
+                    
+                    <h3>Gestion de vos préférences</h3>
+                    <p>Lors de votre première visite, un bandeau d'information vous permet d'accepter ou de refuser l'utilisation de ces cookies.</p>
+                    <p>Vous pouvez à tout moment modifier vos préférences en cliquant sur le lien "Gérer les cookies" présent en bas de page ou en <a href="#" onclick="return klaro.show();">cliquant ici</a>.</p>
+                    <p>Le refus des cookies n'empêche pas la navigation sur le site mais peut limiter certaines fonctionnalités.</p>
+                    
+                    <h3>Cookies tiers</h3>
+                    <p>Certains contenus intégrés (vidéos, réseaux sociaux, etc.) peuvent déposer leurs propres cookies. Nous vous invitons à consulter les politiques de confidentialité de ces services tiers.</p>
 
                     <h2 class="legal-title">Droit applicable</h2>
                     <p>Le site gachactu.com est soumis au droit français.</p>
