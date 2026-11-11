@@ -6,16 +6,19 @@ require_once __DIR__ . '/config.php';
 // ============================================
 
 /**
- * Récupère toutes les actualités triées par date décroissante
+ * Récupère toutes les actualités non masquées triées par date décroissante
  */
-function getActualites($limit = null) {
+function getActualites($limit = null, $offset = null) {
     $pdo = getDatabase();
-    $sql = "SELECT * FROM actualites ORDER BY date DESC";
-    if ($limit) {
-        $sql .= " LIMIT " . (int)$limit;
+
+    $sql = "SELECT * FROM actualites WHERE masquer_actu != 1 ORDER BY date DESC";
+
+    if ($limit !== null && $offset !== null) {
+        $sql .= " LIMIT " . (int)$limit . " OFFSET " . (int)$offset;
     }
+
     $stmt = $pdo->query($sql);
-    return $stmt->fetchAll();
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
 /**
@@ -28,6 +31,16 @@ function getActualiteById($id) {
     return $stmt->fetch();
 }
 
+/**
+ * Compte les actualités (pour la pagination)
+ */
+function countActualites() {
+    $pdo = getDatabase();
+
+    $stmt = $pdo->query("SELECT COUNT(*) FROM actualites WHERE masquer_actu != 1");
+    return $stmt->fetchColumn();
+}
+
 // ============================================
 // FONCTIONS JEUX
 // ============================================
@@ -35,9 +48,35 @@ function getActualiteById($id) {
 /**
  * Récupère tous les jeux
  */
-function getJeux($limit = null) {
+function getJeux($limit = null, $search = null) {
     $pdo = getDatabase();
-    $sql = "SELECT * FROM jeux ORDER BY date_sortie DESC";
+
+    $sql = "SELECT * FROM jeux";
+    $params = [];
+
+    if (!empty($search)) {
+        $sql .= " WHERE titre LIKE :search";
+        $params['search'] = '%' . $search . '%';
+    }
+
+    $sql .= " ORDER BY date_sortie DESC";
+
+    if ($limit) {
+        $sql .= " LIMIT " . (int)$limit;
+    }
+
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute($params);
+
+    return $stmt->fetchAll();
+}
+
+/**
+ * Récupère tous les jeux qui n'ont pas la page masquée
+ */
+function getJeuxAvecGuide($limit = null) {
+    $pdo = getDatabase();
+    $sql = "SELECT * FROM jeux WHERE masquer_page = 0 ORDER BY date_sortie DESC ";
     if ($limit) {
         $sql .= " LIMIT " . (int)$limit;
     }
@@ -74,10 +113,14 @@ function getTop10PositionsOccupees($excludeId = null) {
 /**
  * Récupère les jeux populaires
  */
-function getJeuxPopulaires($limit = 4) {
+function getJeuxPopulaires($limit = null) {
     $pdo = getDatabase();
-    $stmt = $pdo->prepare("SELECT * FROM jeux WHERE est_populaire = 1 ORDER BY date_sortie DESC LIMIT ?");
-    $stmt->execute([$limit]);
+
+    $sql = "SELECT * FROM jeux WHERE est_populaire = 1 ORDER BY date_sortie DESC";
+    if ($limit) {
+        $sql .= " LIMIT " . (int)$limit;
+    }
+    $stmt = $pdo->query($sql);
     return $stmt->fetchAll();
 }
 
@@ -142,11 +185,47 @@ function getCategories() {
 }
 
 /**
+ * Récupère une categorie par son ID
+ */
+function getCategoriesByIdsFront($ids) {
+    $pdo = getDatabase();
+    // on vérifie que $ids n'est pas vide et est une chaîne
+    if (empty($ids)) {
+        return [];
+    }
+    // on transforme la chaîne "1,2,3" en tableau [1, 2, 3]
+    $idsArray = explode(',', $ids);
+    // On prépare une requête avec des placeholders pour chaque ID
+    $placeholders = implode(',', array_fill(0, count($idsArray), '?'));
+    $stmt = $pdo->prepare("SELECT * FROM categories WHERE id IN ($placeholders)");
+    $stmt->execute($idsArray);
+    return $stmt->fetchAll();
+}
+
+/**
  * Récupère toutes les plateformes
  */
 function getPlateformes() {
     $pdo = getDatabase();
     $stmt = $pdo->query("SELECT * FROM plateformes ORDER BY nom");
+    return $stmt->fetchAll();
+}
+
+/**
+ * Récupère une plateforme par son ID
+ */
+function getPlateformesByIdsFront($ids) {
+    $pdo = getDatabase();
+    // on vérifie que $ids n'est pas vide et est une chaîne
+    if (empty($ids)) {
+        return [];
+    }
+    // on transforme la chaîne "1,2,3" en tableau [1, 2, 3]
+    $idsArray = explode(',', $ids);
+    // On prépare une requête avec des placeholders pour chaque ID
+    $placeholders = implode(',', array_fill(0, count($idsArray), '?'));
+    $stmt = $pdo->prepare("SELECT * FROM plateformes WHERE id IN ($placeholders)");
+    $stmt->execute($idsArray);
     return $stmt->fetchAll();
 }
 
@@ -172,6 +251,16 @@ function getDeveloppeurs() {
     $pdo = getDatabase();
     $stmt = $pdo->query("SELECT * FROM developpeurs ORDER BY nom");
     return $stmt->fetchAll();
+}
+
+/**
+ * Récupère un developpeur par son ID
+ */
+function getDeveloppeurByIdFront($id) {
+    $pdo = getDatabase();
+    $stmt = $pdo->prepare("SELECT * FROM developpeurs WHERE id = ?");
+    $stmt->execute([$id]);
+    return $stmt->fetch();
 }
 
 /**
@@ -216,6 +305,14 @@ function getTagsSortieJeu(?string $dateSortie): array {
     return $tags;
 }
 
+/**
+ * Fonction de normalisation de la rareté
+ */
+function rareteToKey(string $rarete): string {
+    $rarete = strtolower($rarete);
+    return str_replace('*', 'stars', $rarete);
+}
+
 // ============================================
 // FONCTIONS PERSONNAGES
 // ============================================
@@ -251,7 +348,48 @@ function getGuidePersonnage($personnageId) {
 }
 
 /**
- * Récupère le tier d'un personnage
+ * Récupère le build d'un personnage (pour les catégories armes reco, equipe reco et equipements)
+ */
+function getPersonnageBuilds($personnageId, $type) {
+    $pdo = getDatabase();
+
+    $stmt = $pdo->prepare("
+        SELECT *
+        FROM personnage_builds
+        WHERE personnage_id = ? AND type = ?
+        ORDER BY position ASC
+    ");
+    $stmt->execute([$personnageId, $type]);
+    $builds = $stmt->fetchAll();
+
+    foreach ($builds as &$build) {
+        if ($type === 'equipe') {
+            $stmt = $pdo->prepare("
+                SELECT p.*
+                FROM personnage_build_personnages bp
+                JOIN personnages p ON p.id = bp.personnage_id
+                WHERE bp.build_id = ?
+                ORDER BY bp.ordre ASC
+            ");
+            $stmt->execute([$build['id']]);
+            $build['personnages'] = $stmt->fetchAll();
+        } else {
+            $stmt = $pdo->prepare("
+                SELECT *
+                FROM personnage_build_elements
+                WHERE build_id = ?
+                ORDER BY ordre ASC
+            ");
+            $stmt->execute([$build['id']]);
+            $build['elements'] = $stmt->fetchAll();
+        }
+    }
+
+    return $builds;
+}
+
+/**
+ * Récupère le tier d'un personnage (depuis la première tier list)
  */
 function getTierPersonnage($personnageId) {
     $pdo = getDatabase();
@@ -259,7 +397,10 @@ function getTierPersonnage($personnageId) {
         SELECT t.nom, t.couleur
         FROM tiers t
         INNER JOIN personnages_tiers pt ON t.id = pt.tier_id
+        INNER JOIN tier_lists tl ON t.tier_list_id = tl.id
         WHERE pt.personnage_id = ?
+        ORDER BY tl.ordre ASC
+        LIMIT 1
     ");
     $stmt->execute([$personnageId]);
     return $stmt->fetch();
@@ -270,21 +411,31 @@ function getTierPersonnage($personnageId) {
 // ============================================
 
 /**
- * Récupère les tiers d'un jeu
+ * Récupère toutes les tier lists d'un jeu
  */
-function getTiersJeu($jeuId) {
+function getTierListsJeu($jeuId) {
     $pdo = getDatabase();
-    $stmt = $pdo->prepare("SELECT * FROM tiers WHERE jeu_id = ? ORDER BY ordre");
+    $stmt = $pdo->prepare("SELECT * FROM tier_lists WHERE jeu_id = ? ORDER BY ordre");
     $stmt->execute([$jeuId]);
     return $stmt->fetchAll();
 }
 
 /**
- * Récupère la tier list complète d'un jeu (tiers avec personnages)
+ * Récupère les tiers d'une tier list
  */
-function getTierListJeu($jeuId) {
+function getTiersTierList($tierListId) {
     $pdo = getDatabase();
-    $tiers = getTiersJeu($jeuId);
+    $stmt = $pdo->prepare("SELECT * FROM tiers WHERE tier_list_id = ? ORDER BY ordre");
+    $stmt->execute([$tierListId]);
+    return $stmt->fetchAll();
+}
+
+/**
+ * Récupère une tier list complète (tiers avec personnages) par son ID
+ */
+function getTierListComplete($tierListId) {
+    $pdo = getDatabase();
+    $tiers = getTiersTierList($tierListId);
 
     foreach ($tiers as &$tier) {
         $stmt = $pdo->prepare("
@@ -299,6 +450,77 @@ function getTierListJeu($jeuId) {
     }
 
     return $tiers;
+}
+
+/**
+ * Récupère la tier list complète d'un jeu (première tier list par défaut, ou par ID)
+ */
+function getTierListJeu($jeuId, $tierListId = null) {
+    $tierLists = getTierListsJeu($jeuId);
+    if (empty($tierLists)) return [];
+
+    if ($tierListId) {
+        // Vérifier que cette tier list appartient bien au jeu
+        foreach ($tierLists as $tl) {
+            if ($tl['id'] == $tierListId) {
+                return getTierListComplete($tl['id']);
+            }
+        }
+        return [];
+    }
+
+    return getTierListComplete($tierLists[0]['id']);
+}
+
+/**
+ * Renomme une tier list
+ */
+function renameTierList($tierListId, $nom) {
+    $pdo = getDatabase();
+    $stmt = $pdo->prepare("UPDATE tier_lists SET nom = ? WHERE id = ?");
+    return $stmt->execute([$nom, $tierListId]);
+}
+
+/**
+ * Crée une nouvelle tier list pour un jeu (max 3)
+ */
+function createTierList($jeuId, $nom = 'Nouvelle Tier List') {
+    $pdo = getDatabase();
+
+    // Vérifier le nombre de tier lists existantes
+    $stmt = $pdo->prepare("SELECT COUNT(*) FROM tier_lists WHERE jeu_id = ?");
+    $stmt->execute([$jeuId]);
+    $count = $stmt->fetchColumn();
+
+    if ($count >= 3) return false;
+
+    $ordre = $count + 1;
+    $stmt = $pdo->prepare("INSERT INTO tier_lists (jeu_id, nom, ordre) VALUES (?, ?, ?)");
+    $stmt->execute([$jeuId, $nom, $ordre]);
+    return $pdo->lastInsertId();
+}
+
+/**
+ * Supprime une tier list
+ */
+function deleteTierList($tierListId) {
+    $pdo = getDatabase();
+    $pdo->beginTransaction();
+
+    // Supprimer les personnages_tiers liés
+    $stmt = $pdo->prepare("SELECT id FROM tiers WHERE tier_list_id = ?");
+    $stmt->execute([$tierListId]);
+    $tierIds = $stmt->fetchAll(PDO::FETCH_COLUMN);
+
+    if (!empty($tierIds)) {
+        $placeholders = implode(',', array_fill(0, count($tierIds), '?'));
+        $pdo->prepare("DELETE FROM personnages_tiers WHERE tier_id IN ($placeholders)")->execute($tierIds);
+        $pdo->prepare("DELETE FROM tiers WHERE id IN ($placeholders)")->execute($tierIds);
+    }
+
+    $pdo->prepare("DELETE FROM tier_lists WHERE id = ?")->execute([$tierListId]);
+    $pdo->commit();
+    return true;
 }
 
 // ============================================
@@ -332,6 +554,53 @@ function getGuide($jeuId, $type) {
     $stmt = $pdo->prepare("SELECT * FROM guides WHERE jeu_id = ? AND type = ?");
     $stmt->execute([$jeuId, $type]);
     return $stmt->fetch();
+}
+
+/**
+ * Récupère un guide teams par jeu
+ */
+function getTeams($jeuId) {
+
+    $pdo = getDatabase();
+
+    $stmt = $pdo->prepare("
+        SELECT *
+        FROM teams_guides
+        WHERE jeu_id = ?
+    ");
+    $stmt->execute([$jeuId]);
+    $guide = $stmt->fetch();
+
+    if (!$guide) {
+        return false;
+    }
+
+    $stmt = $pdo->prepare("
+        SELECT *
+        FROM teams_guide_teams
+        WHERE guide_id = ?
+        ORDER BY position ASC
+    ");
+    $stmt->execute([$guide['id']]);
+    $teams = $stmt->fetchAll();
+
+    foreach ($teams as &$team) {
+
+        $stmt = $pdo->prepare("
+            SELECT p.*
+            FROM teams_guide_personnages tp
+            JOIN personnages p ON p.id = tp.personnage_id
+            WHERE tp.team_id = ?
+            ORDER BY tp.position ASC
+        ");
+        $stmt->execute([$team['id']]);
+
+        $team['personnages'] = $stmt->fetchAll();
+    }
+
+    $guide['teams'] = $teams;
+
+    return $guide;
 }
 
 // ============================================
@@ -441,8 +710,8 @@ function getRubriquesDeBase() {
         'skills' => ['nom' => 'Ordre des skills', 'icone' => 'fas fa-bolt', 'champ' => 'ordre_skills'],
         'armes' => ['nom' => 'Armes recommandées', 'icone' => 'fas fa-fire', 'champ' => 'armes_recommandees'],
         'equipe' => ['nom' => 'Équipe recommandée', 'icone' => 'fas fa-users', 'champ' => 'equipe_recommandee'],
-        'bonds' => ['nom' => 'Bonds', 'icone' => 'fas fa-handshake', 'champ' => 'bonds'],
-        'set_stamp' => ['nom' => 'Set stamp', 'icone' => 'fas fa-gem', 'champ' => 'set_stamp'],
+        'equipements' => ['nom' => 'Équipements', 'icone' => 'fas fa-gem', 'champ' => 'equipements'],
+        'doublons' => ['nom' => 'Doublons', 'icone' => 'fas fa-layer-group', 'champ' => 'doublons'],
     ];
 }
 
@@ -454,35 +723,15 @@ function getRubriquesDeBase() {
 function getConfigRubriquesJeu($jeuId, $includeInactive = false) {
     $pdo = getDatabase();
 
-    // Vérifier si la table existe (pour éviter les erreurs si le SQL n'a pas été exécuté)
+    $rubriquesDeBase = getRubriquesDeBase();
+    $config = [];
+
+    // Vérifier si la table existe
     try {
         $stmt = $pdo->prepare("SELECT COUNT(*) FROM config_rubriques_jeu WHERE jeu_id = ?");
         $stmt->execute([$jeuId]);
     } catch (PDOException $e) {
-        // Table n'existe pas, retourner les rubriques de base par défaut
-        $rubriquesDeBase = getRubriquesDeBase();
-        $config = [];
-        $ordre = 1;
-        foreach ($rubriquesDeBase as $code => $info) {
-            $config[] = [
-                'id' => null,
-                'code_rubrique' => $code,
-                'rubrique_perso_id' => null,
-                'nom' => $info['nom'],
-                'icone' => $info['icone'],
-                'champ' => $info['champ'],
-                'est_active' => 1,
-                'ordre' => $ordre++,
-                'est_personnalisee' => false
-            ];
-        }
-        return $config;
-    }
-
-    if ($stmt->fetchColumn() == 0) {
-        // Pas de config, retourner les rubriques de base par défaut
-        $rubriquesDeBase = getRubriquesDeBase();
-        $config = [];
+        // Si la table n'existe pas, retourner uniquement les rubriques de base
         $ordre = 1;
         foreach ($rubriquesDeBase as $code => $info) {
             $config[] = [
@@ -516,14 +765,23 @@ function getConfigRubriquesJeu($jeuId, $includeInactive = false) {
     $stmt->execute([$jeuId]);
     $rows = $stmt->fetchAll();
 
-    $rubriquesDeBase = getRubriquesDeBase();
-    $config = [];
+    $codesExistants = [];
+    $maxOrdre = 0;
 
+    // Construire la config existante
     foreach ($rows as $row) {
-        if ($row['code_rubrique']) {
+
+        if ($row['ordre'] > $maxOrdre) {
+            $maxOrdre = $row['ordre'];
+        }
+
+        if (!empty($row['code_rubrique'])) {
             // Rubrique de base
             $baseInfo = $rubriquesDeBase[$row['code_rubrique']] ?? null;
+
             if ($baseInfo) {
+                $codesExistants[] = $row['code_rubrique'];
+
                 $config[] = [
                     'id' => $row['id'],
                     'code_rubrique' => $row['code_rubrique'],
@@ -536,7 +794,8 @@ function getConfigRubriquesJeu($jeuId, $includeInactive = false) {
                     'est_personnalisee' => false
                 ];
             }
-        } else if ($row['rubrique_perso_id']) {
+
+        } elseif (!empty($row['rubrique_perso_id'])) {
             // Rubrique personnalisée
             $config[] = [
                 'id' => $row['id'],
@@ -551,6 +810,30 @@ function getConfigRubriquesJeu($jeuId, $includeInactive = false) {
             ];
         }
     }
+
+    // Ajout automatique des rubriques de base manquantes
+    foreach ($rubriquesDeBase as $code => $info) {
+        if (!in_array($code, $codesExistants)) {
+            $maxOrdre++;
+
+            $config[] = [
+                'id' => null,
+                'code_rubrique' => $code,
+                'rubrique_perso_id' => null,
+                'nom' => $info['nom'],
+                'icone' => $info['icone'],
+                'champ' => $info['champ'],
+                'est_active' => 1,
+                'ordre' => $maxOrdre,
+                'est_personnalisee' => false
+            ];
+        }
+    }
+
+    // Réordonner proprement
+    usort($config, function($a, $b) {
+        return $a['ordre'] <=> $b['ordre'];
+    });
 
     return $config;
 }
@@ -579,4 +862,48 @@ function getValeursRubriquesPersonnalisees($personnageId) {
         // Table n'existe pas encore
         return [];
     }
+}
+
+// ============================================
+// FONCTIONS LIENS UTILES
+// ============================================
+
+/**
+ * Récupère les liens utiles à afficher pour un jeu donné :
+ * - les liens rattachés spécifiquement à ce jeu (via liens_utiles_jeux)
+ * - + les liens marqués génériques (affichés sur tous les jeux)
+ */
+function getLiensUtilesJeu($jeuId) {
+    $pdo = getDatabase();
+
+    $stmt = $pdo->prepare("
+        SELECT DISTINCT lu.*
+        FROM liens_utiles lu
+        INNER JOIN liens_utiles_jeux luj ON luj.lien_id = lu.id
+        WHERE luj.jeu_id = ? AND lu.est_actif = 1
+        ORDER BY lu.ordre ASC
+    ");
+    $stmt->execute([$jeuId]);
+    $liensSpecifiques = $stmt->fetchAll();
+
+    $stmt = $pdo->query("
+        SELECT * FROM liens_utiles
+        WHERE est_generique = 1 AND est_actif = 1
+        ORDER BY ordre ASC
+    ");
+    $liensGeneriques = $stmt->fetchAll();
+
+    // Cumul : spécifiques d'abord, puis génériques
+    return array_merge($liensSpecifiques, $liensGeneriques);
+}
+
+/**
+ * Indique si l'onglet Liens utiles est activé pour un jeu (actif par défaut).
+ */
+function isLiensUtilesActif($jeuId) {
+    $pdo = getDatabase();
+    $stmt = $pdo->prepare("SELECT est_active FROM config_liens_utiles WHERE jeu_id = ?");
+    $stmt->execute([$jeuId]);
+    $row = $stmt->fetch();
+    return $row ? (bool)$row['est_active'] : true;
 }

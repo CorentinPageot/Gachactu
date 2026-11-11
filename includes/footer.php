@@ -18,10 +18,10 @@
         <div class="footer-column">
             <h4 class="footer-title">Rejoignez-nous</h4>
             <div class="social-links">
-                <a href="https://discord.gg/4YU5MAawqZ" target="_blank" aria-label="Mon Discord">
+                <a href="https://discord.gg/ZBRRdt4wu2" target="_blank" aria-label="Mon Discord">
                     <i class="fab fa-discord"></i>
                 </a>
-                <a href="https://x.com/GachActu" target="_blank" aria-label="Mon Twitter">
+                <a href="https://x.com/LimuluTV" target="_blank" aria-label="Mon Twitter">
                     <i class="fab fa-x-twitter"></i>
                 </a>
                 <a href="https://www.youtube.com/@limulutv" target="_blank" aria-label="Ma chaîne YouTube">

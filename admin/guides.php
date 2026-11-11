@@ -28,6 +28,7 @@ include 'includes/admin-header.php';
                 <th>Image</th>
                 <th>Jeu</th>
                 <th>Guide Débutant</th>
+                <th>Guide Teams</th>
                 <th>Guide Reroll</th>
                 <th>Actions</th>
             </tr>
@@ -36,15 +37,23 @@ include 'includes/admin-header.php';
             <?php foreach ($jeux as $jeu): ?>
             <?php
                 $guideDebutant = getGuide($jeu['id'], 'debutant');
+                $guideTeams = getTeams($jeu['id']);
                 $guideReroll = getGuide($jeu['id'], 'reroll');
             ?>
             <tr>
                 <td>
                     <img src="../<?= getImagePath($jeu['image'], 'game') ?>" alt="" class="admin-table-img">
                 </td>
-                <td><strong><?= htmlspecialchars($jeu['titre']) ?></strong></td>
+                <td><span><?= htmlspecialchars($jeu['titre']) ?></span></td>
                 <td>
                     <?php if ($guideDebutant && !empty($guideDebutant['contenu'])): ?>
+                    <span class="admin-badge admin-badge-success">Rédigé</span>
+                    <?php else: ?>
+                    <span class="admin-badge admin-badge-secondary">Vide</span>
+                    <?php endif; ?>
+                </td>
+                <td>
+                    <?php if ($guideTeams): ?>
                     <span class="admin-badge admin-badge-success">Rédigé</span>
                     <?php else: ?>
                     <span class="admin-badge admin-badge-secondary">Vide</span>
@@ -60,6 +69,9 @@ include 'includes/admin-header.php';
                 <td class="admin-actions">
                     <a href="guide-edit.php?jeu=<?= $jeu['id'] ?>&type=debutant" class="admin-btn admin-btn-primary" title="Guide Débutant">
                         <i class="fas fa-graduation-cap"></i> Débutant
+                    </a>
+                    <a href="guide-teams-edit.php?jeu=<?= $jeu['id'] ?>" class="admin-btn admin-btn-teams" title="Guide Teams">
+                        <i class="fas fa-sitemap"></i> Teams
                     </a>
                     <a href="guide-edit.php?jeu=<?= $jeu['id'] ?>&type=reroll" class="admin-btn admin-btn-success" title="Guide Reroll">
                         <i class="fas fa-sync"></i> Reroll

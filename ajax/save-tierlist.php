@@ -19,9 +19,21 @@ if (!$input || !isset($input['jeu_id']) || !isset($input['tiers'])) {
 
 $jeuId = (int)$input['jeu_id'];
 $tiersData = $input['tiers'];
+$tierListId = isset($input['tier_list_id']) ? (int)$input['tier_list_id'] : null;
 
 try {
     $pdo = getDatabase();
+
+    // Si pas de tier_list_id, créer une nouvelle tier list ou prendre la première
+    if (!$tierListId) {
+        $tierLists = getTierListsJeu($jeuId);
+        if (empty($tierLists)) {
+            $tierListId = createTierList($jeuId, 'Tier List');
+        } else {
+            $tierListId = $tierLists[0]['id'];
+        }
+    }
+
     $pdo->beginTransaction();
 
     // Définition des tiers avec leurs couleurs et ordre
@@ -34,9 +46,9 @@ try {
         'T5'   => ['couleur' => '#7fbfff', 'ordre' => 6],
     ];
 
-    // Supprimer les anciens tiers et associations pour ce jeu
-    $stmt = $pdo->prepare("SELECT id FROM tiers WHERE jeu_id = ?");
-    $stmt->execute([$jeuId]);
+    // Supprimer les anciens tiers et associations pour cette tier list
+    $stmt = $pdo->prepare("SELECT id FROM tiers WHERE tier_list_id = ?");
+    $stmt->execute([$tierListId]);
     $oldTierIds = $stmt->fetchAll(PDO::FETCH_COLUMN);
 
     if (!empty($oldTierIds)) {
@@ -48,8 +60,8 @@ try {
     // Créer les nouveaux tiers et associations
     foreach ($tiersConfig as $tierNom => $config) {
         // Créer le tier
-        $stmt = $pdo->prepare("INSERT INTO tiers (jeu_id, nom, couleur, ordre) VALUES (?, ?, ?, ?)");
-        $stmt->execute([$jeuId, $tierNom, $config['couleur'], $config['ordre']]);
+        $stmt = $pdo->prepare("INSERT INTO tiers (tier_list_id, nom, couleur, ordre) VALUES (?, ?, ?, ?)");
+        $stmt->execute([$tierListId, $tierNom, $config['couleur'], $config['ordre']]);
         $tierId = $pdo->lastInsertId();
 
         // Ajouter les personnages à ce tier
@@ -62,7 +74,7 @@ try {
     }
 
     $pdo->commit();
-    echo json_encode(['success' => true]);
+    echo json_encode(['success' => true, 'tier_list_id' => $tierListId]);
 
 } catch (Exception $e) {
     if ($pdo->inTransaction()) {

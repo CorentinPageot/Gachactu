@@ -14,7 +14,7 @@ include 'includes/head.php';
                 <h2 class="section-title">Oups !</h2>
                 <p class="section-subtitle">La page que vous recherchez semble introuvable.</p>
                 <p class="section-subtitle">Code d'erreur : 404</p>
-                <a href="index" class="btn-back"><i class="fas fa-home"></i> Retour à l'accueil</a>
+                <a href="/" class="btn-back"><i class="fas fa-home"></i> Retour à l'accueil</a>
             </div>
         </section>
     </div>

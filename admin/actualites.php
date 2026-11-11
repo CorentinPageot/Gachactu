@@ -19,7 +19,7 @@ if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
     }
 }
 
-$actualites = getActualites();
+$actualites = getActualitesDashboard();
 
 include 'includes/admin-header.php';
 ?>

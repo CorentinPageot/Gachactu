@@ -24,14 +24,33 @@ if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
     }
 }
 
+$search = isset($_GET['search']) ? trim($_GET['search']) : null;
+
 // Récupérer les personnages (tous ou filtrés par jeu)
+$pdo = getDatabase();
+
+$sql = "SELECT p.*, j.titre as jeu_titre 
+        FROM personnages p 
+        LEFT JOIN jeux j ON p.jeu_id = j.id 
+        WHERE 1";
+
+$params = [];
+
 if ($jeuId) {
-    $personnages = getPersonnagesJeu($jeuId);
-} else {
-    $pdo = getDatabase();
-    $stmt = $pdo->query("SELECT p.*, j.titre as jeu_titre FROM personnages p LEFT JOIN jeux j ON p.jeu_id = j.id ORDER BY j.titre, p.nom");
-    $personnages = $stmt->fetchAll();
+    $sql .= " AND p.jeu_id = ?";
+    $params[] = $jeuId;
 }
+
+if (!empty($search)) {
+    $sql .= " AND p.nom LIKE ?";
+    $params[] = "%$search%";
+}
+
+$sql .= " ORDER BY j.titre, p.nom";
+
+$stmt = $pdo->prepare($sql);
+$stmt->execute($params);
+$personnages = $stmt->fetchAll();
 
 include 'includes/admin-header.php';
 ?>
@@ -51,6 +70,23 @@ include 'includes/admin-header.php';
         <?php endif; ?>
         (<?= count($personnages) ?>)
     </h2>
+    <form method="GET" class="admin-search-form">
+        <?php if ($jeuId): ?>
+            <input type="hidden" name="jeu" value="<?= $jeuId ?>">
+        <?php endif; ?>
+
+        <input 
+            type="text" 
+            name="search" 
+            placeholder="Rechercher un personnage..."
+            value="<?= htmlspecialchars($search ?? '') ?>"
+            class="search_bar"
+        >
+
+        <button type="submit" class="admin-btn admin-btn-secondary">
+            <i class="fas fa-search"></i>
+        </button>
+    </form>
     <div class="admin-header-actions">
         <?php if ($jeuId): ?>
         <a href="personnages.php" class="admin-btn admin-btn-secondary">
@@ -101,7 +137,7 @@ include 'includes/admin-header.php';
                 <td>
                     <img src="../<?= getImagePath($perso['image'], 'game') ?>" alt="" class="admin-table-img">
                 </td>
-                <td><strong><?= htmlspecialchars($perso['nom']) ?></strong></td>
+                <td><span><?= htmlspecialchars($perso['nom']) ?></span></td>
                 <?php if (!$jeuId): ?>
                 <td><?= htmlspecialchars($perso['jeu_titre'] ?? 'N/A') ?></td>
                 <?php endif; ?>
@@ -134,6 +170,13 @@ include 'includes/admin-header.php';
         </tbody>
     </table>
 </div>
+<?php if (!empty($search)): ?>
+<div class="div_reinitialiser">
+    <a href="personnages.php<?= $jeuId ? '?jeu=' . $jeuId : '' ?>" class="admin-btn admin-btn-danger">
+        Réinitialiser la recherche
+    </a>
+</div>
+<?php endif; ?>
 <?php endif; ?>
 
 <?php include 'includes/admin-footer.php'; ?>

@@ -39,6 +39,9 @@ include 'includes/head.php';
                     <a href="#" class="game-sidebar-link<?= $section === 'guide' ? ' active' : '' ?>" data-section="guide">
                         <i class="fas fa-book"></i> Guide débutant
                     </a>
+                    <a href="#" class="game-sidebar-link<?= $section === 'teams' ? ' active' : '' ?>" data-section="teams">
+                        <i class="fas fa-sitemap"></i> Guide teams
+                    </a>
                     <a href="#" class="game-sidebar-link<?= $section === 'codes' ? ' active' : '' ?>" data-section="codes">
                         <i class="fas fa-gift"></i> Codes cadeaux
                     </a>
@@ -48,6 +51,11 @@ include 'includes/head.php';
                     <a href="#" class="game-sidebar-link<?= $section === 'tierlistmaker' ? ' active' : '' ?>" data-section="tierlistmaker">
                         <i class="fas fa-wand-magic-sparkles"></i> Tier List Maker
                     </a>
+                    <?php if (isLiensUtilesActif($jeu['id'])): ?>
+                    <a href="#" class="game-sidebar-link<?= $section === 'liens_utiles' ? ' active' : '' ?>" data-section="liens_utiles">
+                        <i class="fas fa-link"></i> Liens utiles
+                    </a>
+                    <?php endif; ?>
                 </nav>
             </aside>
 
@@ -68,23 +76,34 @@ include 'includes/head.php';
         const jeuId = <?= $jeu['id'] ?>;
         let currentSection = '<?= $section ?>';
 
+        // Injecter du HTML dans le conteneur et exécuter ses scripts
+        function setSectionHTML(html) {
+            const content = document.getElementById('game-section-content');
+            content.innerHTML = html;
+
+            // Exécuter les scripts injectés
+            content.querySelectorAll('script').forEach(oldScript => {
+                const newScript = document.createElement('script');
+                newScript.textContent = oldScript.textContent;
+                oldScript.parentNode.replaceChild(newScript, oldScript);
+            });
+        }
+
         // Charger une section
-        function loadSection(section) {
+        function loadSection(section, extraParams) {
             const content = document.getElementById('game-section-content');
             content.innerHTML = '<div class="loading">Chargement...</div>';
 
-            fetch(`ajax/jeu-section.php?id=${jeuId}&section=${section}`)
+            let url = `ajax/jeu-section.php?id=${jeuId}&section=${section}`;
+            if (extraParams) {
+                url += '&' + extraParams;
+            }
+
+            fetch(url)
                 .then(response => response.text())
                 .then(html => {
-                    content.innerHTML = html;
+                    setSectionHTML(html);
                     currentSection = section;
-
-                    // Exécuter les scripts injectés
-                    content.querySelectorAll('script').forEach(oldScript => {
-                        const newScript = document.createElement('script');
-                        newScript.textContent = oldScript.textContent;
-                        oldScript.parentNode.replaceChild(newScript, oldScript);
-                    });
 
                     // Mettre à jour l'URL sans recharger
                     history.pushState({section: section}, '', `jeu.php?id=${jeuId}&section=${section}`);

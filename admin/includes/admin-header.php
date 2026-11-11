@@ -40,7 +40,7 @@
                 <a href="codes.php" class="admin-nav-link <?= basename($_SERVER['PHP_SELF']) == 'codes.php' || basename($_SERVER['PHP_SELF']) == 'code-edit.php' ? 'active' : '' ?>">
                     <i class="fas fa-gift"></i> Codes cadeaux
                 </a>
-                <a href="guides.php" class="admin-nav-link <?= basename($_SERVER['PHP_SELF']) == 'guides.php' || basename($_SERVER['PHP_SELF']) == 'guide-edit.php' ? 'active' : '' ?>">
+                <a href="guides.php" class="admin-nav-link <?= basename($_SERVER['PHP_SELF']) == 'guides.php' || basename($_SERVER['PHP_SELF']) == 'guide-edit.php' || basename($_SERVER['PHP_SELF']) == 'guide-teams-edit.php' ? 'active' : '' ?>">
                     <i class="fas fa-book"></i> Guides
                 </a>
                 <a href="partenaires.php" class="admin-nav-link <?= basename($_SERVER['PHP_SELF']) == 'partenaires.php' || basename($_SERVER['PHP_SELF']) == 'partenaire-edit.php' ? 'active' : '' ?>">
@@ -54,6 +54,9 @@
                 </a>
                 <a href="developpeurs.php" class="admin-nav-link <?= basename($_SERVER['PHP_SELF']) == 'developpeurs.php' ? 'active' : '' ?>">
                     <i class="fas fa-code"></i> Développeurs
+                </a>
+                <a href="liens-utiles.php" class="admin-nav-link <?= basename($_SERVER['PHP_SELF']) == 'liens-utiles.php' || basename($_SERVER['PHP_SELF']) == 'lien-utile-edit.php' ? 'active' : '' ?>">
+                    <i class="fas fa-link"></i> Liens utiles
                 </a>
                 
                 <?php if (isSuperAdmin()): ?>

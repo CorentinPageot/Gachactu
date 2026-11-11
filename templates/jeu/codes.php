@@ -18,7 +18,7 @@ $codes = getCodesJeu($jeuId);
         <div class="code-card">
             <div class="code-main">
                 <code class="code-value"><?= htmlspecialchars($code['code']) ?></code>
-                <button class="btn-copy-code" onclick="copyCode('<?= htmlspecialchars($code['code']) ?>')" title="Copier le code">
+                <button class="btn-copy-code" onclick="copyCode(this, '<?= htmlspecialchars($code['code']) ?>')" title="Copier le code">
                     <i class="fas fa-copy"></i>
                 </button>
             </div>
@@ -41,9 +41,17 @@ $codes = getCodesJeu($jeuId);
     </div>
 
     <script>
-    function copyCode(code) {
+    function copyCode(button, code) {
         navigator.clipboard.writeText(code);
-        alert('Code copié : ' + code);
+
+        const icon = button.querySelector("i");
+        icon.classList.remove("fa-copy");
+        icon.classList.add("fa-check");
+
+        setTimeout(() => {
+            icon.classList.remove("fa-check");
+            icon.classList.add("fa-copy");
+        }, 1500);
     }
     </script>
 <?php endif; ?>

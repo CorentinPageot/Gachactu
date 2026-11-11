@@ -26,9 +26,10 @@ include 'includes/head.php';
                     </p>
                     <p>Le site peut contenir des liens d'affiliation partenaires, notamment vers :
                     <ul>
-                        <li>LDShop,</li>
-                        <li>LDPlayer 9,</li>
-                        <li>Instant Gaming.</li>
+                        <li>Bluestacks</li>
+                        <li>Holy</li>
+                        <li>Lootbar</li>
+                        <li>Instant Gaming</li>
                     </ul>
                     </p>
                     <p>Certains liens présents sur le site sont des liens d'affiliation. L'éditeur peut percevoir une commission sans surcoût pour l'utilisateur.</p>

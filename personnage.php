@@ -33,7 +33,7 @@ include 'includes/head.php';
                 <i class="fas fa-chevron-right"></i>
                 <a href="jeux">Jeux</a>
                 <i class="fas fa-chevron-right"></i>
-                <a href="jeu/<?= $personnage['jeu_id'] ?>"><?= htmlspecialchars($personnage['jeu_titre']) ?></a>
+                <a href="jeu.php?id=<?= $personnage['jeu_id'] ?>"><?= htmlspecialchars($personnage['jeu_titre']) ?></a>
                 <i class="fas fa-chevron-right"></i>
                 <span><?= htmlspecialchars($personnage['nom']) ?></span>
             </nav>
@@ -51,15 +51,18 @@ include 'includes/head.php';
                 <div class="personnage-header-info">
                     <h1 class="personnage-header-name"><?= htmlspecialchars($personnage['nom']) ?></h1>
                     <p class="personnage-header-game">
-                        <a href="/jeu/<?= $personnage['jeu_id'] ?>">
+                        <a href="/jeu.php?id=<?= $personnage['jeu_id'] ?>">
                             <i class="fas fa-gamepad"></i> <?= htmlspecialchars($personnage['jeu_titre']) ?>
                         </a>
                     </p>
                     <div class="personnage-header-tags">
-                        <?php if (!empty($personnage['rarete'])): ?>
-                        <span class="personnage-tag-big rarete-<?= strtolower($personnage['rarete']) ?>">
-                            <?= htmlspecialchars($personnage['rarete']) ?>
-                        </span>
+                        <?php if (!empty($personnage['rarete'])): 
+                            $rarete_class = strtolower($personnage['rarete']);
+                            $rarete_class = str_replace('*', 'stars', $rarete_class);
+                        ?>
+                            <span class="rarete-<?= $rarete_class ?> personnage-tag-big">
+                                <?= htmlspecialchars($personnage['rarete']) ?>
+                            </span>
                         <?php endif; ?>
                         <?php if (!empty($personnage['element'])): ?>
                         <span class="personnage-tag-big">
@@ -84,19 +87,69 @@ include 'includes/head.php';
                 <?php foreach ($configRubriques as $rubrique): ?>
                     <?php if (!$rubrique['est_active']) continue; ?>
 
-                    <?php if (!$rubrique['est_personnalisee']): ?>
-                        <!-- Rubrique de base -->
-                        <?php
-                        $champ = $rubrique['champ'];
-                        $contenu = $guide[$champ] ?? '';
-                        ?>
-                        <?php if (!empty($contenu)): ?>
-                        <section class="guide-section">
-                            <h2><i class="<?= htmlspecialchars($rubrique['icone']) ?>"></i> <?= htmlspecialchars($rubrique['nom']) ?></h2>
-                            <div class="guide-section-content">
-                                <?= $contenu ?>
-                            </div>
-                        </section>
+                    <?php if (!$rubrique['est_personnalisee']):
+                        $code = $rubrique['code_rubrique'];
+                        $buildTypesMap = ['armes' => 'armes', 'equipements' => 'artefacts', 'equipe' => 'equipe'];
+                    ?>
+                        <?php if (isset($buildTypesMap[$code])): ?>
+                            <?php
+                            $buildType = $buildTypesMap[$code];
+                            $builds = getPersonnageBuilds($id, $buildType);
+                            ?>
+                            <?php if (!empty($builds)): ?>
+                            <section class="guide-section">
+                                <h2><i class="<?= htmlspecialchars($rubrique['icone']) ?>"></i> <?= htmlspecialchars($rubrique['nom']) ?></h2>
+                                <div class="teams-grid">
+                                    <?php foreach ($builds as $i => $build): ?>
+                                    <div class="team-card">
+                                        <h3><?= htmlspecialchars($build['nom'] ?: ($buildType === 'equipe' ? 'Team ' : 'Build ') . ($i + 1)) ?></h3>
+
+                                        <?php if ($buildType === 'equipe'): ?>
+                                        <div class="team-personnages">
+                                            <?php foreach ($build['personnages'] as $perso): ?>
+                                            <div class="team-personnage">
+                                                <a href="/personnage.php?id=<?= $perso['id'] ?>">
+                                                    <img src="<?= getImagePath($perso['image'], 'game') ?>" alt="<?= htmlspecialchars($perso['nom']) ?>">
+                                                    <h4 class="personnage-nom"><?= htmlspecialchars($perso['nom']) ?></h4>
+                                                </a>
+                                            </div>
+                                            <?php endforeach; ?>
+                                        </div>
+                                        <?php else: ?>
+                                        <div class="team-personnages">
+                                            <?php foreach ($build['elements'] as $el): ?>
+                                            <div class="team-personnage">
+                                                <?php if (!empty($el['image'])): ?>
+                                                <img src="<?= getImagePath($el['image'], 'game') ?>" alt="<?= htmlspecialchars($el['nom']) ?>">
+                                                <?php endif; ?>
+                                                <h4 class="personnage-nom"><?= htmlspecialchars($el['nom']) ?></h4>
+                                            </div>
+                                            <?php endforeach; ?>
+                                            </div>
+                                        <?php endif; ?>
+
+                                        <?php if ($build['description']): ?>
+                                        <p class="team-description"><?= nl2br(htmlspecialchars($build['description'])) ?></p>
+                                        <?php endif; ?>
+                                    </div>
+                                    <?php endforeach; ?>
+                                </div>
+                            </section>
+                            <?php endif; ?>
+                        <?php else: ?>
+                            <!-- Rubrique de base classique (presentation, skills, doublons) -->
+                            <?php
+                            $champ = $rubrique['champ'];
+                            $contenu = $guide[$champ] ?? '';
+                            ?>
+                            <?php if (!empty($contenu)): ?>
+                            <section class="guide-section">
+                                <h2><i class="<?= htmlspecialchars($rubrique['icone']) ?>"></i> <?= htmlspecialchars($rubrique['nom']) ?></h2>
+                                <div class="guide-section-content">
+                                    <?= $contenu ?>
+                                </div>
+                            </section>
+                            <?php endif; ?>
                         <?php endif; ?>
                     <?php else: ?>
                         <!-- Rubrique personnalisée -->
@@ -129,7 +182,7 @@ include 'includes/head.php';
 
             <!-- Retour -->
             <div class="personnage-back">
-                <a href="/jeu/<?= $personnage['jeu_id'] ?>&section=personnages" class="btn-back">
+                <a href="/jeu.php?id=<?= $personnage['jeu_id'] ?>&section=personnages" class="btn-back">
                     <i class="fas fa-arrow-left"></i> Retour aux personnages
                 </a>
             </div>

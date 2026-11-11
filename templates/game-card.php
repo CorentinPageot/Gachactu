@@ -26,7 +26,15 @@
     <div class="game-card-content">
         <h3><?= htmlspecialchars($jeu['titre']) ?></h3>
         <?php if (!empty($jeu['description'])): ?>
-            <p class="game-description"><?= htmlspecialchars($jeu['description']) ?></p>
+            <div class="game-description-wrapper">
+                <p class="game-description">
+                    <?= htmlspecialchars($jeu['description']) ?>
+                </p>
+
+                <button class="btn-see-more" type="button">
+                    Voir plus
+                </button>
+            </div>
         <?php endif; ?>
 
         <div class="game-tags">

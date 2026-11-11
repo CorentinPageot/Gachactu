@@ -1,5 +1,18 @@
 <?php
 $personnages = getPersonnagesJeu($jeuId);
+
+$personnages = getPersonnagesJeu($jeuId);
+
+// Raretés uniques
+$raretes = [];
+
+foreach ($personnages as $perso) {
+    if (!empty($perso['rarete'])) {
+        $raretes[$perso['rarete']] = true;
+    }
+}
+
+$raretes = array_keys($raretes);
 ?>
 
 <div class="section-header">
@@ -23,8 +36,17 @@ $personnages = getPersonnagesJeu($jeuId);
             <div class="div-filtres-rarete">
                 <span><i class="fas fa-filter"></i> Filtrer par rareté</span>
                 <div class="btns-rarete">
-                    <button type="button" class="rarete-btn rarete-ssr filtre-rarete" data-rarete="ssr">SSR</button>
-                    <button type="button" class="rarete-btn rarete-sr filtre-rarete" data-rarete="sr">SR</button>
+                    <?php foreach ($raretes as $rarete): 
+                        $rareteKey = rareteToKey($rarete);
+                    ?>
+                        <button
+                            type="button"
+                            class="rarete-btn rarete-<?= $rareteKey ?> filtre-rarete"
+                            data-rarete="<?= $rareteKey ?>"
+                        >
+                            <?= htmlspecialchars($rarete) ?>
+                        </button>
+                    <?php endforeach; ?>
                 </div>
             </div>
         </div>
@@ -36,11 +58,17 @@ $personnages = getPersonnagesJeu($jeuId);
 
     <div class="personnages-grid">
         <?php foreach ($personnages as $perso): ?>
-        <a href="/personnage.php?id=<?= $perso['id'] ?>" class="personnage-card" data-rarete="<?= strtolower($perso['rarete'] ?? '') ?>">
+        <a href="/personnage.php?id=<?= $perso['id'] ?>" class="personnage-card" data-rarete="<?= !empty($perso['rarete']) ? rareteToKey($perso['rarete']) : '' ?>">
+
             <div class="personnage-image">
                 <img src="<?= getImagePath($perso['image'], 'game') ?>" alt="<?= htmlspecialchars($perso['nom']) ?>">
-                <?php if (!empty($perso['rarete'])): ?>
-                <span class="personnage-rarete rarete-<?= strtolower($perso['rarete']) ?>"><?= htmlspecialchars($perso['rarete']) ?></span>
+                <?php if (!empty($perso['rarete'])): 
+                    $rarete_class = strtolower($perso['rarete']);
+                    $rarete_class = str_replace('*', 'stars', $rarete_class);
+                ?>
+                    <span class="personnage-rarete rarete-<?= $rarete_class ?>">
+                        <?= htmlspecialchars($perso['rarete']) ?>
+                    </span>
                 <?php endif; ?>
             </div>
             <div class="personnage-info">

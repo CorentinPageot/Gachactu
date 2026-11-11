@@ -134,6 +134,8 @@ include 'includes/admin-header.php';
                 <option value="5*" <?= ($personnage['rarete'] ?? '') === '5*' ? 'selected' : '' ?>>5 étoiles</option>
                 <option value="4*" <?= ($personnage['rarete'] ?? '') === '4*' ? 'selected' : '' ?>>4 étoiles</option>
                 <option value="3*" <?= ($personnage['rarete'] ?? '') === '3*' ? 'selected' : '' ?>>3 étoiles</option>
+                <option value="2*" <?= ($personnage['rarete'] ?? '') === '2*' ? 'selected' : '' ?>>2 étoiles</option>
+                <option value="1*" <?= ($personnage['rarete'] ?? '') === '1*' ? 'selected' : '' ?>>1 étoile</option>
             </select>
         </div>
         <div class="admin-form-group">

@@ -31,6 +31,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $top10_position = !empty($_POST['top10_position'])
     ? (int) $_POST['top10_position']
     : null;
+    $liensUtilesActifs = isset($_POST['liens_utiles_actifs']) ? 1 : 0; // AJOUT
 
     // Sécurité logique
     if ($estTop10 === 0) {
@@ -91,6 +92,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } else {
             if ($id) {
                 if (updateJeu($id, $titre, $dateSortie, $image, $estPopulaire, $masquerPage, $estTop10, $top10_position, $selectedCategories, $selectedPlateformes, $description, $developpeurId)) {
+                    setLiensUtilesActifJeu($id, $liensUtilesActifs); // AJOUT
                     $message = 'Jeu mis à jour avec succès.';
                     $messageType = 'success';
                     $jeu = getJeuById($id);
@@ -104,6 +106,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             } else {
                 $newId = createJeu($titre, $dateSortie, $image, $estPopulaire, $masquerPage, $estTop10, $top10_position, $selectedCategories, $selectedPlateformes, $description, $developpeurId);
                 if ($newId) {
+                    setLiensUtilesActifJeu($newId, $liensUtilesActifs); // AJOUT
                     header('Location: jeu-edit.php?id=' . $newId . '&created=1');
                     exit;
                 } else {
@@ -203,6 +206,12 @@ include 'includes/admin-header.php';
                         <?= (!empty($jeu['top10'])) ? 'checked' : '' ?>>
                     Top 10
                 </label>
+                <label class="admin-checkbox-label">
+                    <input type="checkbox" name="liens_utiles_actifs" value="1"
+                        <?= (!$id || isLiensUtilesActif($id)) ? 'checked' : '' ?>>
+                    Afficher l'onglet "Liens utiles"
+                </label>
+                <!-- AJOUT ci-dessus -->
             </div>
         </div>
     </div>
@@ -275,6 +284,10 @@ include 'includes/admin-header.php';
             <a href="codes.php?jeu=<?= $id ?>" class="admin-btn admin-btn-primary">
                 <i class="fas fa-gift"></i> Gérer les codes
             </a>
+            <a href="liens-utiles.php" class="admin-btn admin-btn-primary">
+                <i class="fas fa-link"></i> Gérer les liens utiles
+            </a>
+            <!-- AJOUT ci-dessus -->
         </div>
         <?php endif; ?>
     </div>

@@ -19,7 +19,8 @@ if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
     }
 }
 
-$jeux = getJeux();
+$search = isset($_GET['search']) ? trim($_GET['search']) : null;
+$jeux = getJeux(null, $search);
 
 include 'includes/admin-header.php';
 ?>
@@ -33,6 +34,19 @@ include 'includes/admin-header.php';
 
 <div class="admin-page-header">
     <h2>Jeux (<?= count($jeux) ?>)</h2>
+    <form method="GET" class="admin-search-form">
+        <input 
+            type="text" 
+            name="search" 
+            placeholder="Rechercher un jeu..." 
+            value="<?= htmlspecialchars($search ?? '') ?>"
+            class="search_bar"
+        >
+        <button type="submit" class="admin-btn admin-btn-secondary">
+            <i class="fas fa-search"></i>
+        </button>
+
+    </form>
     <a href="jeu-edit.php" class="admin-btn admin-btn-primary">
         <i class="fas fa-plus"></i> Nouveau jeu
     </a>
@@ -69,7 +83,7 @@ include 'includes/admin-header.php';
                     <img src="../<?= getImagePath($jeu['image'], 'game') ?>" alt="" class="admin-table-img">
                 </td>
                 <td>
-                    <strong><?= htmlspecialchars($jeu['titre']) ?></strong>
+                    <spab><?= htmlspecialchars($jeu['titre']) ?></span>
                 </td>
                 <td><?= formatDateFr($jeu['date_sortie']) ?></td>
                 <td>
@@ -103,6 +117,9 @@ include 'includes/admin-header.php';
                     <a href="codes.php?jeu=<?= $jeu['id'] ?>" class="admin-btn admin-btn-secondary" title="Codes">
                         <i class="fas fa-gift"></i>
                     </a>
+                    <a href="liens-utiles.php?jeu=<?= $jeu['id'] ?>" class="admin-btn admin-btn-secondary" title="Lien utiles">
+                        <i class="fas fa-link"></i>
+                    </a>
                     <a href="jeux.php?delete=<?= $jeu['id'] ?>" class="admin-btn admin-btn-danger" title="Supprimer" onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce jeu ?');">
                         <i class="fas fa-trash"></i>
                     </a>
@@ -112,6 +129,11 @@ include 'includes/admin-header.php';
         </tbody>
     </table>
 </div>
+<?php if (!empty($search)): ?>
+    <div class="div_reinitialiser">
+        <a href="jeux.php" class="admin-btn admin-btn-danger">Afficher tous les jeux</a>
+    </div>
+<?php endif; ?>
 <?php endif; ?>
 
 <?php include 'includes/admin-footer.php'; ?>

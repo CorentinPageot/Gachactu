@@ -10,7 +10,9 @@ $messageType = '';
 
 // Récupérer le jeu sélectionné
 $jeuId = isset($_GET['jeu']) ? (int)$_GET['jeu'] : 0;
-$jeux = getJeux();
+$search = isset($_GET['search']) ? trim($_GET['search']) : null;
+
+$jeux = getJeux(null, $search);
 
 // Si un jeu est sélectionné
 $jeu = $jeuId ? getJeuById($jeuId) : null;
@@ -124,6 +126,21 @@ include 'includes/admin-header.php';
 <!-- Sélection du jeu -->
 <div class="admin-filter-bar">
     <form method="GET" class="admin-filter-form">
+
+        <!-- Recherche -->
+        <input 
+            type="text" 
+            name="search" 
+            placeholder="Rechercher un jeu..."
+            value="<?= htmlspecialchars($search ?? '') ?>"
+            class="search_bar"
+        >
+
+        <button type="submit" class="admin-btn admin-btn-secondary">
+            <i class="fas fa-search"></i>
+        </button>
+
+        <!-- Select jeu -->
         <label for="jeu">Sélectionner un jeu :</label>
         <select name="jeu" id="jeu" onchange="this.form.submit()">
             <option value="">-- Choisir un jeu --</option>
@@ -133,6 +150,11 @@ include 'includes/admin-header.php';
             </option>
             <?php endforeach; ?>
         </select>
+
+        <?php if (!empty($search)): ?>
+            <a href="rubriques-personnages.php" class="admin-btn admin-btn-danger">Réinitialiser</a>
+        <?php endif; ?>
+
     </form>
 </div>
 

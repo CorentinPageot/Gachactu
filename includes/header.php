@@ -27,17 +27,22 @@
             <a href="index" class="nav-link<?php echo basename($_SERVER['PHP_SELF']) == 'index.php' ? ' active' : ''; ?>" aria-label="Accueil">
                 <i class="fas fa-home"></i>
             </a>
-            <a href="jeux" class="nav-link<?php echo basename($_SERVER['PHP_SELF']) == 'jeux.php' ? ' active' : ''; ?>">Jeux à venir</a>
+            <a href="sorties_futures" class="nav-link<?php echo basename($_SERVER['PHP_SELF']) == 'sorties_futures.php' ? ' active' : ''; ?>">Jeux à venir</a>
+            <a href="jeux" class="nav-link<?php echo basename($_SERVER['PHP_SELF']) == 'jeux.php' ? ' active' : ''; ?>">Nos jeux</a>
             <a href="actualites" class="nav-link<?php echo basename($_SERVER['PHP_SELF']) == 'actualites.php' ? ' active' : ''; ?>">Actualités</a>
         </nav>
         <div class="header-right">
-            <a href="https://discord.gg/4YU5MAawqZ" target="_blank" class="btn btn-discord">
+            <a href="https://discord.gg/ZBRRdt4wu2" target="_blank" class="btn btn-discord">
                 <i class="fab fa-discord"></i>
                 <span>Discord</span>
             </a>
+            <a href="https://x.com/LimuluTV" target="_blank" class="btn btn-twitter">
+                <i class="fa-brands fa-x-twitter"></i>
+                <span>Twitter</span>
+            </a>
             <a href="https://ko-fi.com/limulutv" target="_blank" class="btn btn-don">
                 <i class="fas fa-heart"></i>
-                <span>Dons</span>
+                <span>Ko-Fi</span>
             </a>
         </div>
     </div>

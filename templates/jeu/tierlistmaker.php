@@ -1,13 +1,30 @@
 <?php
 $personnages = getPersonnagesJeu($jeuId);
-$tierListExistante = getTierListJeu($jeuId);
+$tierLists = getTierListsJeu($jeuId);
+$activeTierListId = isset($_GET['tier_list_id']) ? (int)$_GET['tier_list_id'] : (!empty($tierLists) ? $tierLists[0]['id'] : null);
+$tierListExistante = $activeTierListId ? getTierListComplete($activeTierListId) : [];
+
+// Nom de la tier list active
+$activeTierListNom = '';
+foreach ($tierLists as $tl) {
+    if ($tl['id'] == $activeTierListId) {
+        $activeTierListNom = $tl['nom'];
+        break;
+    }
+}
 
 // Code d'accès au Tier List Maker
 $codeAcces = $_ENV['TIERMAKER_CODE'] ?? null;
 
 if ($codeAcces === null) {
-    die('Code d’accès non configuré');
+    die('Code d\'accès non configuré');
 }
+
+// Vérifier si déjà déverrouillé via la session
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+$alreadyUnlocked = !empty($_SESSION['tiermaker_unlocked']);
 
 // Récupérer les personnages déjà placés dans la tier list
 $personnagesPlaces = [];
@@ -30,7 +47,7 @@ foreach ($tierListExistante as $tier) {
     </div>
 <?php else: ?>
     <!-- Écran de verrouillage -->
-    <div id="tiermaker-lock" class="tiermaker-lock">
+    <div id="tiermaker-lock" class="tiermaker-lock"<?php if ($alreadyUnlocked): ?> style="display: none;"<?php endif; ?>>
         <div class="lock-container">
             <div class="lock-icon">
                 <i class="fas fa-lock"></i>
@@ -55,7 +72,45 @@ foreach ($tierListExistante as $tier) {
     </div>
 
     <!-- Contenu du Tier List Maker (caché par défaut) -->
-    <div id="tiermaker-content" class="tiermaker-container" style="display: none;">
+    <div id="tiermaker-content" class="tiermaker-container" style="display: <?= $alreadyUnlocked ? 'flex' : 'none' ?>;">
+
+        <!-- Sélecteur de tier list -->
+        <div class="tierlist-manager">
+            <div class="tierlist-selector">
+                <?php foreach ($tierLists as $tl): ?>
+                    <button type="button"
+                        class="tierlist-selector-btn<?= $tl['id'] == $activeTierListId ? ' active' : '' ?>"
+                        data-tier-list-id="<?= $tl['id'] ?>"
+                        onclick="switchTierListMaker(<?= $tl['id'] ?>)"
+                    >
+                        <?= htmlspecialchars($tl['nom']) ?>
+                    </button>
+                <?php endforeach; ?>
+                <?php if (count($tierLists) < 3): ?>
+                    <button type="button" class="tierlist-selector-btn tierlist-add-btn" onclick="createNewTierList()">
+                        <i class="fas fa-plus"></i>
+                    </button>
+                <?php endif; ?>
+            </div>
+
+            <!-- Renommer / Supprimer la tier list active -->
+            <?php if ($activeTierListId): ?>
+            <div class="tierlist-edit-name">
+                <input type="text" id="tierListName" class="tierlist-name-input" value="<?= htmlspecialchars($activeTierListNom) ?>" placeholder="Nom de la tier list">
+                <div class="btn-actions-tierlist">
+                    <button type="button" class="btn-tiermaker btn-rename" onclick="renameTierListAction()">
+                        <i class="fas fa-pen"></i>
+                    </button>
+                    <?php if (count($tierLists) > 1): ?>
+                    <button type="button" class="btn-tiermaker btn-delete-tierlist" onclick="deleteTierListAction()">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+                <?php endif; ?>
+            </div>
+            <?php endif; ?>
+        </div>
+
         <!-- Zone de la Tier List -->
         <div class="tiermaker-board">
             <div class="tier-row-maker" data-tier="APEX">
@@ -175,7 +230,9 @@ foreach ($tierListExistante as $tier) {
 
     <script>
     (function() {
-        let isUnlocked = false;
+        const jeuId = <?= $jeuId ?>;
+        const currentTierListId = <?= $activeTierListId ? $activeTierListId : 'null' ?>;
+        let isUnlocked = <?= $alreadyUnlocked ? 'true' : 'false' ?>;
 
         // Vérification du code
         function checkAccessCode() {
@@ -203,6 +260,11 @@ foreach ($tierListExistante as $tier) {
             .catch(() => {
                 errorMsg.style.display = 'block';
             });
+        }
+
+        // Si déjà déverrouillé, initialiser le drag & drop immédiatement
+        if (isUnlocked) {
+            initDragAndDrop();
         }
 
         // Event listeners pour le déverrouillage
@@ -321,7 +383,8 @@ foreach ($tierListExistante as $tier) {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    jeu_id: <?= $jeuId ?>,
+                    jeu_id: jeuId,
+                    tier_list_id: currentTierListId,
                     tiers: tierData
                 })
             })
@@ -348,6 +411,79 @@ foreach ($tierListExistante as $tier) {
 
             allCharacters.forEach(character => {
                 poolZone.appendChild(character);
+            });
+        };
+
+        // Changer de tier list
+        window.switchTierListMaker = function(tierListId) {
+            loadSection('tierlistmaker', 'tier_list_id=' + tierListId);
+        };
+
+        // Créer une nouvelle tier list
+        window.createNewTierList = function() {
+            const nom = prompt('Nom de la nouvelle tier list :', 'Nouvelle Tier List');
+            if (!nom) return;
+
+            fetch('ajax/manage-tierlist.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'create', jeu_id: jeuId, nom: nom })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    switchTierListMaker(data.tier_list_id);
+                } else {
+                    showNotification(data.error || 'Erreur lors de la création.', 'error');
+                }
+            });
+        };
+
+        // Renommer la tier list active
+        window.renameTierListAction = function() {
+            if (!currentTierListId) return;
+            const nom = document.getElementById('tierListName').value.trim();
+            if (!nom) {
+                showNotification('Le nom ne peut pas être vide.', 'error');
+                return;
+            }
+
+            fetch('ajax/manage-tierlist.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'rename', tier_list_id: currentTierListId, nom: nom })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    showNotification('Tier list renommée avec succès !', 'success');
+                    // Mettre à jour le bouton correspondant
+                    const btn = document.querySelector(`.tierlist-selector-btn[data-tier-list-id="${currentTierListId}"]`);
+                    if (btn) btn.textContent = nom;
+                } else {
+                    showNotification(data.error || 'Erreur lors du renommage.', 'error');
+                }
+            });
+        };
+
+        // Supprimer la tier list active
+        window.deleteTierListAction = function() {
+            if (!currentTierListId) return;
+            if (!confirm('Êtes-vous sûr de vouloir supprimer cette tier list ? Cette action est irréversible.')) return;
+
+            fetch('ajax/manage-tierlist.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'delete', tier_list_id: currentTierListId })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    // Recharger la section pour afficher la première tier list restante
+                    loadSection('tierlistmaker');
+                } else {
+                    showNotification(data.error || 'Erreur lors de la suppression.', 'error');
+                }
             });
         };
 

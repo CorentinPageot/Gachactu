@@ -61,7 +61,7 @@ include 'includes/admin-header.php';
                 <td>
                     <img src="../<?= getImagePath($partenaire['image'], 'partner') ?>" alt="" class="admin-table-img">
                 </td>
-                <td><strong><?= htmlspecialchars($partenaire['nom']) ?></strong></td>
+                <td><span><?= htmlspecialchars($partenaire['nom']) ?></span></td>
                 <td>
                     <?php if (!empty($partenaire['url'])): ?>
                     <a href="<?= htmlspecialchars($partenaire['url']) ?>" target="_blank" class="admin-link">

@@ -20,6 +20,9 @@ switch ($section) {
     case 'guide':
         include '../templates/jeu/guide.php';
         break;
+    case 'teams':
+        include '../templates/jeu/teams.php';
+        break;
     case 'codes':
         include '../templates/jeu/codes.php';
         break;
@@ -28,6 +31,9 @@ switch ($section) {
         break;
     case 'tierlistmaker':
         include '../templates/jeu/tierlistmaker.php';
+        break;
+    case 'liens_utiles':
+        include '../templates/jeu/liens_utiles.php';
         break;
     default:
         echo '<div class="error">Section non trouvée.</div>';
