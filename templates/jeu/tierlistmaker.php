@@ -86,7 +86,7 @@ foreach ($tierListExistante as $tier) {
                         <?= htmlspecialchars($tl['nom']) ?>
                     </button>
                 <?php endforeach; ?>
-                <?php if (count($tierLists) < 3): ?>
+                <?php if (count($tierLists) < 5): ?>
                     <button type="button" class="tierlist-selector-btn tierlist-add-btn" onclick="createNewTierList()">
                         <i class="fas fa-plus"></i>
                     </button>

@@ -482,7 +482,7 @@ function renameTierList($tierListId, $nom) {
 }
 
 /**
- * Crée une nouvelle tier list pour un jeu (max 3)
+ * Crée une nouvelle tier list pour un jeu (max 5)
  */
 function createTierList($jeuId, $nom = 'Nouvelle Tier List') {
     $pdo = getDatabase();
@@ -492,7 +492,7 @@ function createTierList($jeuId, $nom = 'Nouvelle Tier List') {
     $stmt->execute([$jeuId]);
     $count = $stmt->fetchColumn();
 
-    if ($count >= 3) return false;
+    if ($count >= 5) return false;
 
     $ordre = $count + 1;
     $stmt = $pdo->prepare("INSERT INTO tier_lists (jeu_id, nom, ordre) VALUES (?, ?, ?)");

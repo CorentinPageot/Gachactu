@@ -29,7 +29,7 @@ try {
 
             $id = createTierList((int)$input['jeu_id'], $nom);
             if ($id === false) {
-                echo json_encode(['success' => false, 'error' => 'Maximum 3 tier lists par jeu']);
+                echo json_encode(['success' => false, 'error' => 'Maximum 5 tier lists par jeu']);
             } else {
                 echo json_encode(['success' => true, 'tier_list_id' => $id]);
             }
